@@ -66,32 +66,15 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //получаем настройки
-        CoroutineScope(Dispatchers.IO).launch {
+        val corut = CoroutineScope(Dispatchers.IO).launch {
             settings=getSettings(applicationContext)
         }
+
         setContent {
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
-            var mainUri :Uri? =null
-
-            val intent = getIntent()
-            when{
-                intent?.action == Intent.ACTION_SEND->{
-                    if ("image/jpeg" == intent.type){
-                        (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {it->
-                            // Update UI to reflect image being shared
-                            Toast.makeText(this, it.toString(), Toast.LENGTH_LONG).show()
-                            mainUri =it
-                        }
-                    }
-                    else{
-                        Toast.makeText(this, "Не поддерживаемый формат. ", Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
-
-
-            if (settings?.uri != null){
-                imageUriPodpis=settings?.uri
+            var mainUri: Uri? = null
+            if (settings?.uri != null) {
+                imageUriPodpis = settings?.uri
             }
             ImageMakerTheme {
                 // A surface container using the 'background' color from the theme
@@ -99,10 +82,32 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    GetContentExample(this ,mainUri, imageUriPodpis)
-                }
-            }
+           /* val intent = getIntent()
+            when {
+                intent?.action == Intent.ACTION_SEND -> {
+                    if ("image/jpeg" == intent.type) {
+                        (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let { it ->
+                            // Update UI to reflect image being shared
+                            //Toast.makeText(this, it.toString(), Toast.LENGTH_LONG).show()
+                            mainUri = it
+                            GetContentExample(this, mainUri, imageUriPodpis)
+                        }
+                    } else {
 
+                        Toast.makeText(this, "Не поддерживаемый формат.->${intent.type} ", Toast.LENGTH_LONG).show()
+                    }
+                }
+                intent?.action == Intent.ACTION_MAIN -> {*/
+
+                GetContentExample(this, mainUri, imageUriPodpis)
+
+                        //}
+
+                 //}
+
+                }
+
+            }
         }
     }
    override fun onDestroy() {
