@@ -16,6 +16,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
 import android.provider.MediaStore
+import android.provider.MediaStore.Images.Media
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -46,6 +47,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
+//import androidx.core.content.ContextCompat.startActivity
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -60,15 +63,16 @@ import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 
+
 val Context.dataStore  by preferencesDataStore(name = "settings")
 var settings = Settings()
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //получаем настройки
-        val corut = CoroutineScope(Dispatchers.IO).launch {
-            settings=getSettings(applicationContext)
-        }
+       // val corut = CoroutineScope(Dispatchers.IO).launch {
+       //     settings=getSettings(applicationContext)
+       // }
 
         setContent {
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
@@ -82,7 +86,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-           /* val intent = getIntent()
+            val intent = getIntent()
             when {
                 intent?.action == Intent.ACTION_SEND -> {
                     if ("image/jpeg" == intent.type) {
@@ -97,13 +101,13 @@ class MainActivity : ComponentActivity() {
                         Toast.makeText(this, "Не поддерживаемый формат.->${intent.type} ", Toast.LENGTH_LONG).show()
                     }
                 }
-                intent?.action == Intent.ACTION_MAIN -> {*/
+                intent?.action == Intent.ACTION_MAIN -> {
 
                 GetContentExample(this, mainUri, imageUriPodpis)
 
-                        //}
+                        }
 
-                 //}
+                 }
 
                 }
 
@@ -259,13 +263,11 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                     }
                 }
                 val screenSize = getScreenSize(context)
-
                 val newWidth = bitmapPodpis.width * screenSize.first / mbitmap.width
                 val newHeight = bitmapPodpis.height * screenSize.second / mbitmap.height
                 val scalePod = Bitmap.createScaledBitmap(
-                    bitmapPodpis, (newWidth * 0.6).toInt(),
-                    (newHeight * 0.6).toInt(), true
-                )
+                        bitmapPodpis, (newWidth * 0.6).toInt(),
+                        (newHeight * 0.6).toInt(), true)
                 val offset1 = Offset(
                     mbitmap.width.toFloat() / 4 * 3 + 75,
                     mbitmap.height.toFloat() / 4 * 3 - 80
@@ -283,7 +285,10 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                         Text("Save")
                     }
                     Button(onClick = {
-
+                         val uri=saveBitmap(context, mbitmap, "tmp.jpeg")
+                    if(uri !=null){
+                                sendBitmap(context,uri)
+                            }
 
                     }) {
                         Icon(Icons.Filled.Share, contentDescription = "Поделиться")
@@ -343,27 +348,30 @@ private fun writeFile(fileName: String, fileData: Bitmap) {
         e.printStackTrace()
     }*/
 }
-fun saveBitmap(context: Context, bitmap: Bitmap, fileName: String):Boolean{
-    return try {
-        val content = ContentValues().apply {
+@Throws (IOException::class)
+fun saveBitmap(context: Context, bitmap: Bitmap, fileName: String):Uri? {
+    var outUri: Uri? =null
+    val content = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, "test.jpeg")
         }
-        val outUri = context.contentResolver.insert(
+         outUri = context.contentResolver.insert(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI, content)
 
         if (outUri != null){
         val outStream = context.contentResolver.openOutputStream(outUri)
          if (outStream == null)
-             false
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream!!)
+            return null
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream!!)
         outStream.flush()
         outStream.close()
-        true
-        }
-        else false
     }
-    catch (e: IOException){
-        e.printStackTrace()
-        false
-    }
+    return outUri
+}
+fun sendBitmap(context: Context, uri: Uri){
+  val intent = Intent().apply {
+      action = Intent.ACTION_SEND
+      putExtra(Intent.EXTRA_STREAM, uri)
+      type=context.resources.getString(R.string.MIME_jpeg)
+  }
+    startActivity(context,Intent.createChooser(intent,null),null)
 }
