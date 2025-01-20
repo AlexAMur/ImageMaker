@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">ImageMaker</string>
-    <string name="MIME_jpeg">ImageMaker</string>
+    <string name="MIME_jpeg">image/jpeg</string>
 
 </resources>

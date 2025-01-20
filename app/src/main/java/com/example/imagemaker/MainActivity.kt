@@ -114,7 +114,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-   override fun onDestroy() {
+override fun onDestroy() {
         super.onDestroy()
         CoroutineScope(Dispatchers.IO).launch {
             saveSettings( applicationContext, settings)
@@ -207,13 +207,12 @@ fun GetContentExample(context: Context, mainUri: Uri?,
         rememberLauncherForActivityResult (
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
-            if (isGranted) {
+            //if (isGranted) {
                 bitmapPodpis = getImage(context, imageUriPodpis!!)
                 // app.
-            } else Toast.makeText(context,
-                                    "Для автоматического открытия изображения подкписи требуется разрешение на доступ к файлам",
-                                    Toast.LENGTH_LONG
-                                  ).show()
+          //  } else Toast.makeText(context,
+              //                      "Для автоматического открытия изображения подкписи требуется разрешение на доступ к файлам",
+                //                    Toast.LENGTH_LONG).show()
         }
     val launcher_Pod = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri!= null)
@@ -284,16 +283,17 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                     }) {
                         Text("Save")
                     }
-                    Button(onClick = {
-                         val uri=saveBitmap(context, mbitmap, "tmp.jpeg")
-                    if(uri !=null){
-                                sendBitmap(context,uri)
-                            }
 
-                    }) {
-                        Icon(Icons.Filled.Share, contentDescription = "Поделиться")
-                    }
                 }
+            }
+            Button(onClick = {
+                val uri=saveBitmap(context, mbitmap, "tmp.jpeg")
+                if(uri !=null){
+                   sendBitmap(context,uri)
+                }
+
+            }) {
+                Icon(Icons.Filled.Share, contentDescription = "Поделиться")
             }
         }
 
@@ -368,10 +368,15 @@ fun saveBitmap(context: Context, bitmap: Bitmap, fileName: String):Uri? {
     return outUri
 }
 fun sendBitmap(context: Context, uri: Uri){
+
   val intent = Intent().apply {
       action = Intent.ACTION_SEND
       putExtra(Intent.EXTRA_STREAM, uri)
-      type=context.resources.getString(R.string.MIME_jpeg)
+      putExtra(Intent.EXTRA_EMAIL, arrayOf("adress@gmail.com"))
+      putExtra(Intent.EXTRA_SUBJECT,"act")
+     type=context.resources.getString(R.string.MIME_jpeg)
+     // type="image/jpeg"
   }
-    startActivity(context,Intent.createChooser(intent,null),null)
+    context.startActivity(Intent.createChooser(intent,null))
+   // ActivityResultContracts.StartIntentSenderForResult()
 }
