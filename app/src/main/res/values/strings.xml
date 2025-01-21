@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">ImageMaker</string>
     <string name="MIME_jpeg">image/jpeg</string>
+    <string name="not_support_format">Не поддерживаемый формат данных. </string>
+
 
 </resources>

@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -73,8 +74,7 @@ class MainActivity : ComponentActivity() {
        // val corut = CoroutineScope(Dispatchers.IO).launch {
        //     settings=getSettings(applicationContext)
        // }
-
-        setContent {
+       setContent {
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
             var mainUri: Uri? = null
             if (settings?.uri != null) {
@@ -86,19 +86,22 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    Snackbar {
+                        Text(this.resources.getString(R.string.not_support_format),)
+                    }
             val intent = getIntent()
             when {
                 intent?.action == Intent.ACTION_SEND -> {
-                    if ("image/jpeg" == intent.type) {
+                    if (this.resources.getString(R.string.MIME_jpeg) == intent.type) {
                         (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let { it ->
-                            // Update UI to reflect image being shared
-                            //Toast.makeText(this, it.toString(), Toast.LENGTH_LONG).show()
                             mainUri = it
                             GetContentExample(this, mainUri, imageUriPodpis)
                         }
                     } else {
-
-                        Toast.makeText(this, "Не поддерживаемый формат.->${intent.type} ", Toast.LENGTH_LONG).show()
+                        Snackbar {
+                            Text(this.resources.getString(R.string.not_support_format))
+                        }
+                        //Toast.makeText(this, "Не поддерживаемый формат.", Toast.LENGTH_LONG).show()
                     }
                 }
                 intent?.action == Intent.ACTION_MAIN -> {
@@ -170,8 +173,6 @@ fun getImage(context: Context, uri: Uri):Bitmap {
         }
     }
     try {
-       // val  file =uri.toFile()
-        //val inputstrim=file.outputStream()
         val inputstrim = context.contentResolver.openInputStream(uri)
         val  bitmap=BitmapFactory.decodeStream(inputstrim)
         inputstrim?.close()
@@ -375,8 +376,6 @@ fun sendBitmap(context: Context, uri: Uri){
       putExtra(Intent.EXTRA_EMAIL, arrayOf("adress@gmail.com"))
       putExtra(Intent.EXTRA_SUBJECT,"act")
      type=context.resources.getString(R.string.MIME_jpeg)
-     // type="image/jpeg"
   }
     context.startActivity(Intent.createChooser(intent,null))
-   // ActivityResultContracts.StartIntentSenderForResult()
 }
