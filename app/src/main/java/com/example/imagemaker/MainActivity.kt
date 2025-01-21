@@ -189,6 +189,7 @@ fun getImage(context: Context, uri: Uri):Bitmap {
 fun GetContentExample(context: Context, mainUri: Uri?,
                       UriPodpis: Uri? ){
     var imageUriPodpis  by remember { mutableStateOf<Uri?>(UriPodpis) }
+    val fileName = File(mainUri?.path?:"").name
     var imageUri_main by remember { mutableStateOf<Uri?>(null) }
     if (mainUri != null)
             imageUri_main = mainUri  //тут по кругу
@@ -197,10 +198,13 @@ fun GetContentExample(context: Context, mainUri: Uri?,
     var mbitmap = bitmapPodpis.copy(Bitmap.Config.ARGB_8888, true)
     val permissionOpenLauncher =
         rememberLauncherForActivityResult (
-            ActivityResultContracts.CreateDocument("image/jpeg")
+            ActivityResultContracts.CreateDocument(context.resources.getString(R.string.MIME_jpeg))
         ) {
            // здесь сохранить файл с помощью uri
-                saveFileToDownloads(context ,"test.jpeg", mbitmap)
+                 if (fileName !="")
+                     saveFileToDownloads(context ,fileName, mbitmap)
+                else
+                    saveFileToDownloads(context ,"test.jpeg", mbitmap)
                 // app.
         }
 
@@ -280,7 +284,7 @@ fun GetContentExample(context: Context, mainUri: Uri?,
             if (editImage){
                 Row{
                     Button(onClick = {
-                        saveBitmap(context, mbitmap, "test.jpeg")
+                        saveBitmap(context, mbitmap, fileName)
                     }) {
                         Text("Save")
                     }
