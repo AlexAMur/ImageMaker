@@ -71,14 +71,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //получаем настройки
-       // val corut = CoroutineScope(Dispatchers.IO).launch {
-       //     settings=getSettings(applicationContext)
-       // }
+        val corut = CoroutineScope(Dispatchers.IO).launch {
+            settings=getSettings(applicationContext)
+        }
        setContent {
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
             var mainUri: Uri? = null
-            if (settings?.uri != null) {
-                imageUriPodpis = settings?.uri
+            if (settings.uri != null) {
+                imageUriPodpis = settings.uri
             }
             ImageMakerTheme {
                 // A surface container using the 'background' color from the theme
@@ -144,13 +144,10 @@ fun doesUriExist(contentResolver: ContentResolver, uri: Uri): Boolean {
 suspend fun  getSettings(context: Context):Settings{
     val settings = Settings()
     context.dataStore.data.map {
-        if (isValidUri(it[stringPreferencesKey(Settings::uri.name)]?:"")){
         settings.uri= Uri.parse(it[stringPreferencesKey(Settings::uri.name)])
-        }
         settings.x =  (it[stringPreferencesKey(Settings::x.name)])?.toInt() ?: 0
         settings.y =  (it[stringPreferencesKey(Settings::y.name)])?.toInt() ?: 0
     }.first()
-
     return settings
 }
 suspend fun saveSettings(context: Context, settings: Settings){
@@ -164,14 +161,7 @@ suspend fun saveSettings(context: Context, settings: Settings){
     }
 }
 
-
 fun getImage(context: Context, uri: Uri):Bitmap {
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-        if (ContextCompat.checkSelfPermission(context,
-                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-        }
-    }
     try {
         val inputstrim = context.contentResolver.openInputStream(uri)
         val  bitmap=BitmapFactory.decodeStream(inputstrim)
@@ -204,7 +194,7 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                  if (fileName !="")
                      saveFileToDownloads(context ,fileName, mbitmap)
                 else
-                    saveFileToDownloads(context ,"test.jpeg", mbitmap)
+                    saveFileToDownloads(context ,"imageMaker_tmp.jpeg", mbitmap)
                 // app.
         }
 
@@ -237,10 +227,10 @@ fun GetContentExample(context: Context, mainUri: Uri?,
     }
     Column {
         Row {
-            Button(onClick = { launcher_main.launch("image/*") }) {
+            Button(onClick = { launcher_main.launch(context.resources.getString(R.string.MIME_jpeg)) }) {
                 Text(text = "Load Image")
             }
-            Button(onClick = { launcher_Pod.launch("image/*") }) {
+            Button(onClick = { launcher_Pod.launch(context.resources.getString(R.string.MIME_all)) }) {
                 Text(text = "Select image podpis.")
             }
         }
@@ -273,7 +263,7 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                         bitmapPodpis, (newWidth * 0.6).toInt(),
                         (newHeight * 0.6).toInt(), true)
                 val offset1 = Offset(
-                    mbitmap.width.toFloat() / 4 * 3 + 75,
+                    mbitmap.width.toFloat() / 4 * 3 + 80,
                     mbitmap.height.toFloat() / 4 * 3 - 80
                 )
                 canvas.drawImage(scalePod.asImageBitmap(), offset1, paint)
@@ -292,7 +282,7 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                 }
             }
             Button(onClick = {
-                val uri=saveBitmap(context, mbitmap, "tmp.jpeg")
+                val uri=saveBitmap(context, mbitmap, fileName)
                 if(uri !=null){
                    sendBitmap(context,uri)
                 }
