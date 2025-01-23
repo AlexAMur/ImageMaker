@@ -2,8 +2,8 @@ package com.example.imagemaker
 
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -11,12 +11,10 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
 import android.provider.MediaStore
-import android.provider.MediaStore.Images.Media
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -32,15 +30,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+//import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -50,8 +54,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
-//import androidx.core.content.ContextCompat.startActivity
+
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -76,6 +79,7 @@ class MainActivity : ComponentActivity() {
         val corut = CoroutineScope(Dispatchers.IO).launch {
             settings=getSettings(applicationContext)
         }
+
        setContent {
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
             var mainUri: Uri? = null
@@ -88,10 +92,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Snackbar {
-                        Text(this.resources.getString(R.string.not_support_format),)
-                    }
-            val intent = getIntent()
+            val intent = intent
             when {
                 intent?.action == Intent.ACTION_SEND -> {
                     if (this.resources.getString(R.string.MIME_jpeg) == intent.type) {
@@ -126,26 +127,12 @@ override fun onDestroy() {
         }
     }
 }
-fun isValidUri(uriString: String): Boolean {
-    return try {
-        val uri = Uri.parse(uriString)
-        uri.scheme != null && uri.host != null
-    } catch (e: Exception) {
-        false
-    }
-}
-fun doesUriExist(contentResolver: ContentResolver, uri: Uri): Boolean {
-    return try {
-        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            cursor.count > 0
-        } ?: false
-    } catch (e: Exception) {
-        false
-    }
-}
+
 suspend fun  getSettings(context: Context):Settings{
     val settings = Settings()
-    if (context.dataStore == null) Toast.makeText(context, "Not settings",Toast.LENGTH_LONG).show()
+    if (context.dataStore.data == null){
+        Toast.makeText(context, "Not settings",Toast.LENGTH_LONG).show()
+    }
     try {
         context.dataStore.data.map {
             settings.uri = Uri.parse(it[stringPreferencesKey(Settings::uri.name)])
@@ -183,33 +170,31 @@ fun getImage(context: Context, uri: Uri):Bitmap {
     }
    return Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
 }
-@Composable
-fun selectPodpis(context: Context){
-
-}
-
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
  fun GetContentExample(context: Context, mainUri: Uri?,
-                              UriPodpis: Uri? ){
-    var imageUriPodpis  by remember { mutableStateOf<Uri?>(UriPodpis) }
-    val fileName = File(mainUri?.path?:"").name
+                              UriPodpis: Uri? ) {
+    var imageUriPodpis by remember { mutableStateOf<Uri?>(UriPodpis) }
+    var fileName = ""
     var imageUri_main by remember { mutableStateOf<Uri?>(null) }
     if (mainUri != null)
-            imageUri_main = mainUri  //тут по кругу
-    var editImage by remember { mutableStateOf<Boolean>(value = false)}
-    var bitmapPodpis= Bitmap.createBitmap(300,300,Bitmap.Config.ARGB_8888)
+        imageUri_main = mainUri  //тут по кругу
+    var editImage by remember { mutableStateOf<Boolean>(value = false) }
+    var bitmapPodpis = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
     var mbitmap = bitmapPodpis.copy(Bitmap.Config.ARGB_8888, true)
 
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {it->
-        imageUriPodpis= it.data?.data
-        if (imageUriPodpis!=null){
-            val contentResolver = context.contentResolver
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { it ->
+            imageUriPodpis = it.data?.data
+            if (imageUriPodpis != null) {
+                val contentResolver = context.contentResolver
 
-            val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            contentResolver.takePersistableUriPermission(imageUriPodpis!!, takeFlags)
+                val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                contentResolver.takePersistableUriPermission(imageUriPodpis!!, takeFlags)
+            }
         }
-    }
+
 
 //    val permissionOpenLauncher =
 //        rememberLauncherForActivityResult (ActivityResultContracts.CreateDocument(context.resources.getString(R.string.MIME_jpeg))) {
@@ -221,7 +206,7 @@ fun selectPodpis(context: Context){
 //                // app.
 //        }
 
-/*    val requestPermissionLauncher =
+    /*    val requestPermissionLauncher =
         rememberLauncherForActivityResult (
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
@@ -235,30 +220,41 @@ fun selectPodpis(context: Context){
                 //                    Toast.LENGTH_LONG).show()
         }*/
 
-    val launcher_Pod = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        if (uri!= null) {
-            val contentResolver = context.contentResolver
+    val launcher_Pod =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            if (uri != null) {
+                val contentResolver = context.contentResolver
 
-            val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
 // Check for the freshest data.
-            contentResolver.takePersistableUriPermission(uri, takeFlags)
-            imageUriPodpis = uri
+                contentResolver.takePersistableUriPermission(uri, takeFlags)
+                imageUriPodpis = uri
 
-        }
-        settings.uri = imageUriPodpis
-        //val contentResolver =context.contentResolver
+            }
+            settings.uri = imageUriPodpis
+            //val contentResolver =context.contentResolver
 
 //        val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
 // Check for the freshest data.
-    //    contentResolver.takePersistableUriPermission(imageUriPodpis!!, takeFlags)
-        //saveSettings(context, Settings(imageUriPodpis.toString()) )
-    }
-    val launcher_main = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        imageUri_main=uri
-        editImage=false
-        //return@rememberLauncherForActivityResult
-    }
+            //    contentResolver.takePersistableUriPermission(imageUriPodpis!!, takeFlags)
+            //saveSettings(context, Settings(imageUriPodpis.toString()) )
+        }
+    val launcher_main =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            if (uri != null) {
+                imageUri_main = uri
+                fileName = uri.path.toString()
+                editImage = false
+                if (fileName.length > 0 && fileName.lastIndexOf("/") > -1)
+                    fileName = fileName.substring(fileName.lastIndexOf("/") + 1)  //имя файла
+            }
+        }
+
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
+        // Screen content
     Column {
         Row {
             Button(onClick = { launcher_main.launch(context.resources.getString(R.string.MIME_jpeg)) }) {
@@ -266,7 +262,7 @@ fun selectPodpis(context: Context){
             }
 
             Button(onClick = { selectImage(context, launcher) }) {
-                Text(text = "Select image podpis.")
+                Text(text = "Select podpis.")
             }
         }
         if (imageUri_main != null) {
@@ -274,8 +270,8 @@ fun selectPodpis(context: Context){
             //launcher_Pod.launch("image/*")
             //  val istrimPod = context.contentResolver.openInputStream(imageUri_Pod!!)
             val bitmap = BitmapFactory.decodeStream(inputstrim)
-             mbitmap= bitmap.copy(Bitmap.Config.ARGB_8888, true);
-            if(imageUriPodpis!=null) {
+            mbitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+            if (imageUriPodpis != null) {
                 val paint = Paint()
                 val canvas = Canvas(mbitmap.asImageBitmap())
                 bitmapPodpis = getImage(context, imageUriPodpis!!)
@@ -283,12 +279,13 @@ fun selectPodpis(context: Context){
                     ContextCompat.checkSelfPermission(
                         context,
                         Manifest.permission.READ_EXTERNAL_STORAGE
-                  ) -> {
-                       // CoroutineScope(Dispatchers.IO).launch {
+                    ) -> {
+                        // CoroutineScope(Dispatchers.IO).launch {
                         bitmapPodpis = getImage(context, imageUriPodpis!!)
-                  //   }
+                        //   }
                         //Log.d("ExampleScreen","Code requires permission")
                     }
+
                     else -> {
                         // Asking for permission
                         //requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -298,21 +295,25 @@ fun selectPodpis(context: Context){
                 val newWidth = bitmapPodpis.width * screenSize.first / mbitmap.width
                 val newHeight = bitmapPodpis.height * screenSize.second / mbitmap.height
                 val scalePod = Bitmap.createScaledBitmap(
-                        bitmapPodpis, (newWidth * 0.6).toInt(),
-                        (newHeight * 0.6).toInt(), true)
+                    bitmapPodpis, (newWidth * 0.6).toInt(),
+                    (newHeight * 0.6).toInt(), true
+                )
                 val offset1 = Offset(
                     mbitmap.width.toFloat() / 4 * 3 + 80,
                     mbitmap.height.toFloat() / 4 * 3 - 80
                 )
                 canvas.drawImage(scalePod.asImageBitmap(), offset1, paint)
                 canvas.save()
-                editImage=true
+                editImage = true
             }
             Image(painter = BitmapPainter(mbitmap.asImageBitmap()), contentDescription = "Image")
-            if (editImage){
-                Row{
+            if (editImage) {
+                Row {
                     Button(onClick = {
                         saveBitmap(context, mbitmap, fileName)
+                        scope.launch {
+                            snackbarHostState.showSnackbar("${context.resources.getString(R.string.saveMassage)} $fileName.")
+                        }
                     }) {
                         Text("Save")
                     }
@@ -320,9 +321,9 @@ fun selectPodpis(context: Context){
                 }
             }
             Button(onClick = {
-                val uri=saveBitmap(context, mbitmap, fileName)
-                if(uri !=null){
-                   sendBitmap(context,uri)
+                val uri = saveBitmap(context, mbitmap, fileName)
+                if (uri != null) {
+                    sendBitmap(context, uri)
                 }
 
             }) {
@@ -331,6 +332,7 @@ fun selectPodpis(context: Context){
         }
 
     }
+}
 }
 
 fun getScreenSize(context: Context):Pair<Int, Int>{
@@ -382,10 +384,13 @@ private fun writeFile(fileName: String, fileData: Bitmap) {
     }*/
 }
 @Throws (IOException::class)
-fun saveBitmap(context: Context, bitmap: Bitmap, fileName: String):Uri? {
+fun saveBitmap(context: Context, bitmap: Bitmap, fileName: String?):Uri? {
     var outUri: Uri? =null
     val content = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, "test.jpeg")
+        if (fileName != null)
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+        else
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "temp_filename.jpg")
         }
          outUri = context.contentResolver.insert(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI, content)
@@ -394,7 +399,7 @@ fun saveBitmap(context: Context, bitmap: Bitmap, fileName: String):Uri? {
         val outStream = context.contentResolver.openOutputStream(outUri)
          if (outStream == null)
             return null
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream!!)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
         outStream.flush()
         outStream.close()
     }
@@ -419,5 +424,4 @@ fun selectImage(context: Context,launcher: ManagedActivityResultLauncher<Intent,
 
     }
     launcher.launch(intent)
-
 }
