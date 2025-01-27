@@ -130,16 +130,20 @@ override fun onDestroy() {
 
 suspend fun  getSettings(context: Context):Settings{
     val settings = Settings()
-    if (context.dataStore.data == null){
-        Toast.makeText(context, "Not settings",Toast.LENGTH_LONG).show()
-    }
+//    if (context.dataStore.data == null){
+//        Toast.makeText(context, "Not settings",Toast.LENGTH_LONG).show()
+//    }
     try {
         context.dataStore.data.map {
+            if (it[stringPreferencesKey(Settings::uri.name)] !="")
             settings.uri = Uri.parse(it[stringPreferencesKey(Settings::uri.name)])
+            else
+                settings.uri=null
             settings.x = (it[stringPreferencesKey(Settings::x.name)])?.toInt() ?: 0
             settings.y = (it[stringPreferencesKey(Settings::y.name)])?.toInt() ?: 0
         }.first()
     } catch (e: Exception){
+        Log.e("ImageMaker",e.message.toString())
         Toast.makeText(context, "Not settings",Toast.LENGTH_LONG).show()
     }finally {
         return settings
@@ -187,12 +191,14 @@ fun getImage(context: Context, uri: Uri):Bitmap {
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { it ->
             imageUriPodpis = it.data?.data
             if (imageUriPodpis != null) {
+                settings.uri=imageUriPodpis
                 val contentResolver = context.contentResolver
 
                 val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or
                         Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 contentResolver.takePersistableUriPermission(imageUriPodpis!!, takeFlags)
             }
+
         }
 
 
