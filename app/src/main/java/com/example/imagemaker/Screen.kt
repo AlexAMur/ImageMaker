@@ -14,6 +14,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -122,7 +123,9 @@ fun GetContentExample(context: Context, mainUri: Uri?,
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
         // Screen content
+
         Column {
+            Getlocation(context)
             Row {
                 Button(onClick = { launcher_main.launch(context.resources.getString(R.string.MIME_jpeg)) }) {
                     Text(text = "Load Image")
@@ -198,6 +201,11 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                 }) {
                     Icon(Icons.Filled.Share, contentDescription = "Поделиться")
                 }
+                Button(onClick = {}) {
+                    Icon(Icons.Filled.LocationOn, contentDescription = "Поделиться")
+                }
+
+                Getlocation(context)
             }
 
         }

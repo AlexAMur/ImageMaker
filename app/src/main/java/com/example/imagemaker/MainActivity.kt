@@ -57,9 +57,10 @@ class MainActivity : ComponentActivity() {
         val corut = CoroutineScope(Dispatchers.IO).launch {
             settings=getSettings(applicationContext)
         }
-        getlocation(this)
+
 
        setContent {
+
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
             var mainUri: Uri? = null
             if (settings.uri != null) {
