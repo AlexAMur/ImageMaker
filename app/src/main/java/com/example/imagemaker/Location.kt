@@ -7,30 +7,45 @@ import android.location.LocationManager
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
+
 import androidx.core.app.ActivityCompat
+
 
 
 @Composable
 fun Getlocation(context: Context){
-//context.fus
-
-
-        if (ActivityCompat.checkSelfPermission(context,
+    if (ActivityCompat.checkSelfPermission(context,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-           getPermissionlocation()
-        }
-    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-    Text("Coordinate:dol-${location?.longitude} shir-${location?.latitude}")
+           if(getPermissionlocation()){
+               Getlocation(context)
+           }
+
+        }else{
+            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            if (locationManager.isLocationEnabled){
+                val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                Text("Coordinate:dol-${location?.longitude} shir-${location?.latitude}")
+                }
+                else{
+                    Snackbar(
+                            dismissAction = {
+
+                            }
+                    ) {
+                        Text(context.resources.getString(R.string.EnableLocation))
+                    }
+                }
+
+            }
 }
 @Composable
 fun getPermissionlocation():Boolean{
@@ -40,25 +55,26 @@ fun getPermissionlocation():Boolean{
         when{
             permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)->{
                 isPermission=true
+                return@rememberLauncherForActivityResult
             }
             permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)->{
                 isPermission=true
+                return@rememberLauncherForActivityResult
             }
             else->{
-                isPermission=false
+                return@rememberLauncherForActivityResult
             }
         }
 
     }
     SideEffect {
-
         permissionlauncer.launch(
             arrayOf(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
-            )
-        )
+            ))
     }
 
-    return false
+    return isPermission
+
 }
