@@ -41,10 +41,12 @@ import kotlinx.coroutines.launch
 fun GetContentExample(context: Context, mainUri: Uri?,
                       UriPodpis: Uri? ) {
     var imageUriPodpis by remember { mutableStateOf<Uri?>(UriPodpis) }
-    var fileName = ""
+    var fileName:String? = null
     var imageUri_main by remember { mutableStateOf<Uri?>(null) }
-    if (mainUri != null)
+    if (mainUri != null){
         imageUri_main = mainUri  //тут по кругу
+        fileName=fileNameFromUri(imageUri_main!!)
+      }
     var editImage by remember { mutableStateOf<Boolean>(value = false) }
     var bitmapPodpis = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
     var mbitmap = bitmapPodpis.copy(Bitmap.Config.ARGB_8888, true)
@@ -112,20 +114,17 @@ fun GetContentExample(context: Context, mainUri: Uri?,
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             if (uri != null) {
                 imageUri_main = uri
-                fileName = uri.path.toString()
                 editImage = false
-                if (fileName.length > 0 && fileName.lastIndexOf("/") > -1)
-                    fileName = fileName.substring(fileName.lastIndexOf("/") + 1)  //имя файла
+                fileName = fileNameFromUri(uri)
+
             }
         }
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
-        // Screen content
-
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }){
         Column {
-            Getlocation(context)
+            Getlocation(context,scope, snackbarHostState)
             Row {
                 Button(onClick = { launcher_main.launch(context.resources.getString(R.string.MIME_jpeg)) }) {
                     Text(text = "Load Image")
@@ -135,8 +134,6 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                     Text(text = "Select podpis.")
                 }
             }
-
-
             if (imageUri_main != null) {
                 val inputstrim = context.contentResolver.openInputStream(imageUri_main!!)
                 //launcher_Pod.launch("image/*")
@@ -189,23 +186,17 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                         }) {
                             Text("Save")
                         }
+                        Button(onClick = {
+                            val uri = saveBitmap(context, mbitmap, fileName)
+                            if (uri != null) {
+                                sendBitmap(context, uri)
+                            }
 
+                        }) {
+                            Icon(Icons.Filled.Share, contentDescription = "Поделиться")
+                        }
                     }
                 }
-                Button(onClick = {
-                    val uri = saveBitmap(context, mbitmap, fileName)
-                    if (uri != null) {
-                        sendBitmap(context, uri)
-                    }
-
-                }) {
-                    Icon(Icons.Filled.Share, contentDescription = "Поделиться")
-                }
-                Button(onClick = {}) {
-                    Icon(Icons.Filled.LocationOn, contentDescription = "Поделиться")
-                }
-
-                Getlocation(context)
             }
 
         }
