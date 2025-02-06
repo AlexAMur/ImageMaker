@@ -78,6 +78,7 @@ class MainActivity : ComponentActivity() {
                     if (this.resources.getString(R.string.MIME_jpeg) == intent.type) {
                         (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let { it ->
                             mainUri = it
+
                             GetContentExample(this, mainUri, imageUriPodpis)
                         }
                     } else {

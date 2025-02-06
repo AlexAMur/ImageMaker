@@ -45,7 +45,7 @@ fun GetContentExample(context: Context, mainUri: Uri?,
     var imageUri_main by remember { mutableStateOf<Uri?>(null) }
     if (mainUri != null){
         imageUri_main = mainUri  //тут по кругу
-        fileName=fileNameFromUri(imageUri_main!!)
+        fileName=fileNameFromUri(imageUri_main)
       }
     var editImage by remember { mutableStateOf<Boolean>(value = false) }
     var bitmapPodpis = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
