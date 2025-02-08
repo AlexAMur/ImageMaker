@@ -57,6 +57,7 @@ class MainActivity : ComponentActivity() {
         val corut = CoroutineScope(Dispatchers.IO).launch {
             settings=getSettings(applicationContext)
         }
+        readJsonMarket(applicationContext, "magazi.json")
 
 
        setContent {
