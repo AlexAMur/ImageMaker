@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +36,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.imagemaker.ui.theme.ImageMakerTheme
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -44,6 +47,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.lang.IllegalStateException
 
 
 val Context.dataStore  by preferencesDataStore(name = "settings")
@@ -57,8 +61,10 @@ class MainActivity : ComponentActivity() {
         val corut = CoroutineScope(Dispatchers.IO).launch {
             settings=getSettings(applicationContext)
         }
-        readJsonMarket(applicationContext, "magazi.json")
 
+        val listMarket = createArrayMarket( readJsonFile(applicationContext, "magazin.json"))
+            val mailTo = selectMailMarket(listMarket,Pair(0.0,0.0))
+           // Log.i("IM",listMarket.toString())
 
        setContent {
 

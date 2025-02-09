@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation(libs.play.services.location)
+    implementation(libs.gson)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

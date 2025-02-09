@@ -5,5 +5,6 @@
     <string name="MIME_all">image/*</string>
     <string name="not_support_format">Не поддерживаемый формат данных. </string>
     <string name="saveMassage">Изображение сохранено в </string>
+    <string name="FileNotFound">Не удалось открыть файл. </string>
     <string name="EnableLocation">Включите геолокацию в настройках для определения магазина.</string>
 </resources>
