@@ -54,9 +54,19 @@ val Context.dataStore  by preferencesDataStore(name = "settings")
 var settings = Settings()
 class MainActivity : ComponentActivity() {
     lateinit var fusedLocationClient: String
+        val array = arrayOf(
+            arrayOf(5.0 , 4.0),
+            arrayOf(2.0 , 2.0),
+            arrayOf(25.0 , 44.0),
+            arrayOf(51.0 , 14.0),
+            arrayOf(4.0 , 1.0),
+            arrayOf(2.0 , 4.0),
+            arrayOf(5.0 , 6.0),
+            )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        selectMail(array,Pair(2.0,1.0))
         //получаем настройки
         val corut = CoroutineScope(Dispatchers.IO).launch {
             settings=getSettings(applicationContext)
@@ -67,7 +77,6 @@ class MainActivity : ComponentActivity() {
            // Log.i("IM",listMarket.toString())
 
        setContent {
-
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
             var mainUri: Uri? = null
             if (settings.uri != null) {
