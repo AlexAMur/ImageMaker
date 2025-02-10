@@ -2,7 +2,6 @@ package com.example.imagemaker
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.ui.layout.LayoutCoordinates
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.FileNotFoundException

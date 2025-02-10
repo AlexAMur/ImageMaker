@@ -54,29 +54,20 @@ val Context.dataStore  by preferencesDataStore(name = "settings")
 var settings = Settings()
 class MainActivity : ComponentActivity() {
     lateinit var fusedLocationClient: String
-        val array = arrayOf(
-            Market(1 ,"Mosksa", 37.617792080727654
-                , 55.75537013871674
-                , "mosk"),
-
-            )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-     //   val mail = selectMail(array,Pair(5.0,5.0))
         //получаем настройки
         val corut = CoroutineScope(Dispatchers.IO).launch {
             settings=getSettings(applicationContext)
         }
- //протестить координаты
+
         val listMarket = createArrayMarket( readJsonFile(applicationContext, "magazin.json"))
-            //val mailTo = selectMailMarket(listMarket,Pair(30.25,59.883333))
-            val mailTo = selectMailMarket(array,Pair(30.35687977917871
-                ,59.932240884442095
-            ))
+            val mailTo = selectMailMarket(listMarket,Pair(0.0,0.0))
            // Log.i("IM",listMarket.toString())
 
        setContent {
+
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
             var mainUri: Uri? = null
             if (settings.uri != null) {
