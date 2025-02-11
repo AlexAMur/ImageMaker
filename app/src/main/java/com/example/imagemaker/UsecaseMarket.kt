@@ -28,7 +28,7 @@ fun selectMailMarket(arrayMarket: Array<Market>,coordinates:  Pair<Double, Doubl
     val delta = arrayOf<Array<Double>>()
     for (i in 0..arrayMarket.size){
         delta[i][0]=abs(arrayMarket[i].longitude-coordinates.first)
-        delta[i][1]=abs(arrayMarket[i].latitude-coordinates.first)
+        delta[i][1]=abs(arrayMarket[i].latitude-coordinates.second)
     }
     var minOne=delta[0][0]
     var minTwo=delta[0][0]
@@ -59,10 +59,13 @@ fun selectMailMarket(arrayMarket: Array<Market>,coordinates:  Pair<Double, Doubl
     }
 }
 fun selectMail(arrayMarket: Array<Array<Double>>,coordinates:  Pair<Double, Double>){
-    val delta = arrayOf<Array<Double>>()
+    var delta = emptyArray<Array<Double>>()
+
     for (i in 0..arrayMarket.size){
-        delta[i][0]=abs(arrayMarket[i][0]-coordinates.first)
-        delta[i][1]=abs(arrayMarket[i][1]-coordinates.first)
+        val array = arrayOf(0.0,0.0)
+        array[0]=abs(arrayMarket[i][0]-coordinates.first)
+        array[1]=abs(arrayMarket[i][1]-coordinates.second)
+        delta+=array
     }
     var minOne=delta[0][0]
     var minTwo=delta[0][0]
