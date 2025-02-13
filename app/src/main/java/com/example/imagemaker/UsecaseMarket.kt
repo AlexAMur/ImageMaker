@@ -58,10 +58,10 @@ fun selectMailMarket(arrayMarket: Array<Market>,coordinates:  Pair<Double, Doubl
         }
     }
 }
-fun selectMail(arrayMarket: Array<Array<Double>>,coordinates:  Pair<Double, Double>){
+fun selectMail(arrayMarket: Array<Array<Double>>,coordinates:  Pair<Double, Double>):String{
     var delta = emptyArray<Array<Double>>()
 
-    for (i in 0..arrayMarket.size){
+    for (i in 0..arrayMarket.size-1){
         val array = arrayOf(0.0,0.0)
         array[0]=abs(arrayMarket[i][0]-coordinates.first)
         array[1]=abs(arrayMarket[i][1]-coordinates.second)
@@ -71,10 +71,11 @@ fun selectMail(arrayMarket: Array<Array<Double>>,coordinates:  Pair<Double, Doub
     var minTwo=delta[0][0]
     var minThree=delta[0][0]
     val threeMinIndex=arrayOf(-1,-1,-1)
-
-    for (i in 0.. delta.size){
+    for (i in 0.. delta.size-1){
         if (minOne >= delta[i][0]){
-            if(minOne <= minTwo){
+            minOne=delta[i][0]
+            threeMinIndex[0]= i
+            if(minOne < minTwo){
                 val tmp=minOne
                 minOne=minTwo
                 minTwo=tmp
@@ -82,7 +83,7 @@ fun selectMail(arrayMarket: Array<Array<Double>>,coordinates:  Pair<Double, Doub
                 threeMinIndex[0]=threeMinIndex[1]
                 threeMinIndex[1]=index
             }
-            if (minTwo <= minThree){
+            if (minTwo < minThree){
                 val tmp=minTwo
                 minTwo=minThree
                 minThree=tmp
@@ -90,9 +91,21 @@ fun selectMail(arrayMarket: Array<Array<Double>>,coordinates:  Pair<Double, Doub
                 threeMinIndex[1]=threeMinIndex[2]
                 threeMinIndex[2]=index
             }
-            minOne=delta[i][0]
-            threeMinIndex[0]= i
         }
     }
-
+    minOne=delta[threeMinIndex[0]][0]+delta[threeMinIndex[0]][1]
+    minTwo=delta[threeMinIndex[1]][0]+delta[threeMinIndex[1]][1]
+    minThree=delta[threeMinIndex[2]][0]+delta[threeMinIndex[2]][1]
+    if (minOne > minTwo){
+        if (minTwo > minThree)
+           return "dolgota ${arrayMarket[threeMinIndex[2]][0]} , ${arrayMarket[threeMinIndex[2]][1]}"
+        else
+          return  "dolgota ${arrayMarket[threeMinIndex[1]][0]} , ${arrayMarket[threeMinIndex[1]][1]}"
+    }
+    else{
+    }
+    if(minOne > minThree)
+        return "dolgota ${arrayMarket[threeMinIndex[2]][0]} , ${arrayMarket[threeMinIndex[2]][1]}"
+    else
+      return  "dolgota ${arrayMarket[threeMinIndex[0]][0]} , ${arrayMarket[threeMinIndex[0]][1]}"
 }

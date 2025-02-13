@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        selectMail(array,Pair(2.0,1.0))
+        val mail = selectMail(array,Pair(5.0,5.0))
         //получаем настройки
         val corut = CoroutineScope(Dispatchers.IO).launch {
             settings=getSettings(applicationContext)
