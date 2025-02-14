@@ -55,25 +55,25 @@ var settings = Settings()
 class MainActivity : ComponentActivity() {
     lateinit var fusedLocationClient: String
         val array = arrayOf(
-            arrayOf(5.0 , 4.0),
-            arrayOf(2.0 , 2.0),
-            arrayOf(25.0 , 44.0),
-            arrayOf(51.0 , 14.0),
-            arrayOf(4.0 , 1.0),
-            arrayOf(2.0 , 4.0),
-            arrayOf(5.0 , 6.0),
+            Market(1 ,"Mosksa", 37.617792080727654
+                , 55.75537013871674
+                , "mosk"),
+
             )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val mail = selectMail(array,Pair(5.0,5.0))
+     //   val mail = selectMail(array,Pair(5.0,5.0))
         //получаем настройки
         val corut = CoroutineScope(Dispatchers.IO).launch {
             settings=getSettings(applicationContext)
         }
-
+ //протестить координаты
         val listMarket = createArrayMarket( readJsonFile(applicationContext, "magazin.json"))
-            val mailTo = selectMailMarket(listMarket,Pair(0.0,0.0))
+            //val mailTo = selectMailMarket(listMarket,Pair(30.25,59.883333))
+            val mailTo = selectMailMarket(array,Pair(30.35687977917871
+                ,59.932240884442095
+            ))
            // Log.i("IM",listMarket.toString())
 
        setContent {

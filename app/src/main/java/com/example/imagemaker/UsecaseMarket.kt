@@ -6,6 +6,13 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.FileNotFoundException
 import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sqrt
+
+
+const val radus = 6371008//111321.377778
+const val gradus_paralel= 111321.377778
+const val gradus_meridian=111134.861111
 
 fun readJsonFile(context: Context,fileName:String):String {
     try {
@@ -24,39 +31,24 @@ fun createArrayMarket( stringJson: String):Array<Market>{
     val listMarket:Array<Market> =gson.fromJson(stringJson, marketListType)
     return listMarket
 }
-fun selectMailMarket(arrayMarket: Array<Market>,coordinates:  Pair<Double, Double>){
-    val delta = arrayOf<Array<Double>>()
-    for (i in 0..arrayMarket.size){
-        delta[i][0]=abs(arrayMarket[i].longitude-coordinates.first)
-        delta[i][1]=abs(arrayMarket[i].latitude-coordinates.second)
-    }
-    var minOne=delta[0][0]
-    var minTwo=delta[0][0]
-    var minThree=delta[0][0]
-    val threeMinIndex=arrayOf(-1,-1,-1)
+fun selectMailMarket(arrayMarket: Array<Market>,coordinates:  Pair<Double, Double>):String{
+    val delta = arrayOf(0.0)
 
-    for (i in 0.. delta.size){
-        if (minOne >= delta[i][0]){
-            if(minOne <= minTwo){
-                val tmp=minOne
-                minOne=minTwo
-                minTwo=tmp
-                val index=threeMinIndex[0]
-                threeMinIndex[0]=threeMinIndex[1]
-                threeMinIndex[1]=index
-            }
-            if (minTwo <= minThree){
-                val tmp=minTwo
-                minTwo=minThree
-                minThree=tmp
-                val index=threeMinIndex[1]
-                threeMinIndex[1]=threeMinIndex[2]
-                threeMinIndex[2]=index
-            }
-            minOne=delta[i][0]
-           threeMinIndex[0]= i
-        }
+    for (i in 0..arrayMarket.size-1){
+        var tmpArray= arrayOf(0.0)
+        var x =((arrayMarket[i].longitude-coordinates.first))*
+                       (cos(arrayMarket[i].latitude) * gradus_paralel)
+        x= x*x/ radus
+        var y =(arrayMarket[i].latitude-coordinates.second/ gradus_meridian)
+        y=y*y/ radus
+        delta[i]=((x+y)/ radus)*((x+y)/ radus)
     }
+    val min=delta.min()
+    for(i in 0..delta.size-1){
+        if(min == delta[i])
+            return arrayMarket[i].mailTo
+    }
+    return "@krasnoe-beloe.ru"
 }
 fun selectMail(arrayMarket: Array<Array<Double>>,coordinates:  Pair<Double, Double>):String{
     var delta = emptyArray<Array<Double>>()
