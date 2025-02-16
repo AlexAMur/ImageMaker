@@ -7,3 +7,7 @@ data class Market(
     val latitude:Double = 0.0,
     val mailTo:String
 )
+data class Coordinate(
+    val longitude:Double = 0.0,
+    val latitude:Double = 0.0
+)

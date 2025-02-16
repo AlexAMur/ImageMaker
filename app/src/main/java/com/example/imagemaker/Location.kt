@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun Getlocation(context: Context, scope: CoroutineScope, snackbarHostState: SnackbarHostState){
+fun Getlocation(context: Context, scope: CoroutineScope, snackbarHostState: SnackbarHostState):Coordinate{
     if (ActivityCompat.checkSelfPermission(context,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
@@ -34,6 +34,7 @@ fun Getlocation(context: Context, scope: CoroutineScope, snackbarHostState: Snac
             if (locationManager.isLocationEnabled){
                 val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
                 Text("Coordinate:dol-${location?.longitude} shir-${location?.latitude}")
+                return Coordinate(longitude = location?.longitude?:0.0, latitude = location?.latitude?:0.0)
                 }
                 else{
                        LaunchedEffect(scope){
@@ -44,6 +45,7 @@ fun Getlocation(context: Context, scope: CoroutineScope, snackbarHostState: Snac
                 }
 
             }
+   return Coordinate(longitude = 0.0, latitude = 0.0)
 }
 @Composable
 fun getPermissionlocation():Boolean{

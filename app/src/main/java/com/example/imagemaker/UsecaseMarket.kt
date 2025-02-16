@@ -10,7 +10,9 @@ import kotlin.math.cos
 import kotlin.math.sqrt
 
 
-const val radus = 6371008//111321.377778
+const val radus = 6371008
+const val half_circle=180
+const val PI = 3.141592653589793
 const val gradus_paralel= 111321.377778
 const val gradus_meridian=111134.861111
 
@@ -31,17 +33,17 @@ fun createArrayMarket( stringJson: String):Array<Market>{
     val listMarket:Array<Market> =gson.fromJson(stringJson, marketListType)
     return listMarket
 }
-fun selectMailMarket(arrayMarket: Array<Market>,coordinates:  Pair<Double, Double>):String{
+fun selectMailMarket(arrayMarket: Array<Market>,coordinates:Coordinate  ):String{
     val delta = arrayOf(0.0)
 
     for (i in 0..arrayMarket.size-1){
         var tmpArray= arrayOf(0.0)
-        var x =((arrayMarket[i].longitude-coordinates.first))*
-                       (cos(arrayMarket[i].latitude) * gradus_paralel)
-        x= x*x/ radus
-        var y =(arrayMarket[i].latitude-coordinates.second/ gradus_meridian)
-        y=y*y/ radus
-        delta[i]=((x+y)/ radus)*((x+y)/ radus)
+        var x =((arrayMarket[i].longitude-coordinates.longitude))*
+                       (cos((arrayMarket[i].latitude+coordinates.latitude)/2*PI/half_circle) * gradus_paralel)
+        x= x*x
+        var y =(arrayMarket[i].latitude-coordinates.latitude) * gradus_meridian
+        y=y*y
+        delta[i]= sqrt(x+y)
     }
     val min=delta.min()
     for(i in 0..delta.size-1){
