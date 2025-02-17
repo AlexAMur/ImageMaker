@@ -23,12 +23,15 @@ import androidx.activity.result.ActivityResult
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
@@ -54,7 +57,7 @@ import java.lang.IllegalStateException
 val Context.dataStore  by preferencesDataStore(name = "settings")
 var settings = Settings()
 class MainActivity : ComponentActivity() {
-    lateinit var fusedLocationClient: String
+
 //         val array = arrayOf(
 //            Market(1 ,"Mosksa", 37.617792080727654
 //                , 55.75537013871674
@@ -64,15 +67,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-     //   val mail = selectMail(array,Pair(5.0,5.0))
+
         //получаем настройки
         val corut = CoroutineScope(Dispatchers.IO).launch {
             settings=getSettings(applicationContext)
         }
-
-
-
-
        setContent {
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
             var mainUri: Uri? = null
@@ -119,6 +118,12 @@ override fun onDestroy() {
         CoroutineScope(Dispatchers.IO).launch {
             saveSettings( applicationContext, settings)
         }
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+
     }
 }
 
@@ -214,9 +219,6 @@ private fun writeFile(fileName: String, fileData: Bitmap) {
         fileData .compress(Bitmap.CompressFormat.JPEG, 100, outStream)
             outStream.flush()
             outStream.close()
-  /*  } catch (e: IOException) {
-        e.printStackTrace()
-    }*/
 }
 @Throws (IOException::class)
 fun saveBitmap(context: Context, bitmap: Bitmap, fileName: String?):Uri? {

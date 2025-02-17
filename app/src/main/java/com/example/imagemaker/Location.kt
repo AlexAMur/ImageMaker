@@ -4,22 +4,69 @@ import android.content.Context
 import  android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Bundle
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
 import androidx.core.app.ActivityCompat
-import com.google.android.gms.location.LocationListener
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@Composable
+fun locaion(context: Context):Coordinate{
+
+    val coordinate= Coordinate(0.0,0.0)
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    var locationByGps :Location? = null
+    val gpsLocationListener: LocationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location) {
+            locationByGps = location
+        }
+
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
+    }
+    if (locationManager.isLocationEnabled){
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            getPermissionlocation()
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10f, gpsLocationListener)
+        }
+    if (locationByGps != null) {
+
+        coordinate.longitude= locationByGps?.longitude?:0.0
+        coordinate.longitude= locationByGps?.longitude?:0.0
+            //use latitude and longitude as per your need
+        }
+    return coordinate
+}
+
 
 @Composable
-fun Getlocation(context: Context, scope: CoroutineScope, snackbarHostState: SnackbarHostState):Coordinate{
+fun Getlocation(context: Context, scope: CoroutineScope, snackbarHostState: SnackbarHostState, coordinate: MutableState<Coordinate>):Coordinate{
     if (ActivityCompat.checkSelfPermission(context,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
@@ -28,27 +75,28 @@ fun Getlocation(context: Context, scope: CoroutineScope, snackbarHostState: Snac
             ) != PackageManager.PERMISSION_GRANTED
         ) {
            if(getPermissionlocation()){
-               Getlocation(context, scope, snackbarHostState)
+             //  Getlocation(context, scope, snackbarHostState)
            }
 
         }else{
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        var gpslocation: Location?=null
+        val gpsLocationListener: LocationListener = object : LocationListener {
+            override fun onLocationChanged(location: Location) {
+                val tmpCoordinate =Coordinate(longitude = location.longitude, latitude = location.latitude)
+                coordinate.value = tmpCoordinate
+            }
+
+            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderDisabled(provider: String) {}
+        }
             if (locationManager.isLocationEnabled){
-                var latitude :Double=0.0
-                var longitude: Double=0.0
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10f,  gpsLocationListener)
 
-
-
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10f,  {location->
-                         latitude = location.latitude
-                         longitude = location.longitude
-                        // Используйте координаты по вашему усмотрению
-
-                    })
-                Text("Coordinate:dol-${longitude} shir-${latitude}")
-                val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                //Text("Coordinate:dol-${location?.longitude} shir-${location?.latitude}")
-                return Coordinate(longitude = location?.longitude?:0.0, latitude = location?.latitude?:0.0)
+               // val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+              //  locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, null, null
+                return Coordinate(longitude = gpslocation?.longitude?:0.0, latitude = gpslocation?.latitude?:0.0)
                 }
                 else{
                        LaunchedEffect(scope){

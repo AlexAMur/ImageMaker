@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun GetContentExample(context: Context, mainUri: Uri?,
-                      UriPodpis: Uri? ) {
+                       UriPodpis: Uri? ) {
 
 
     var imageUriPodpis by remember { mutableStateOf<Uri?>(UriPodpis) }
@@ -66,32 +66,6 @@ fun GetContentExample(context: Context, mainUri: Uri?,
             }
 
         }
-
-
-//    val permissionOpenLauncher =
-//        rememberLauncherForActivityResult (ActivityResultContracts.CreateDocument(context.resources.getString(R.string.MIME_jpeg))) {
-//           // здесь сохранить файл с помощью uri
-//                 if (fileName !="")
-//                     saveFileToDownloads(context ,fileName, mbitmap)
-//                else
-//                    saveFileToDownloads(context ,"imageMaker_tmp.jpeg", mbitmap)
-//                // app.
-//        }
-
-    /*    val requestPermissionLauncher =
-        rememberLauncherForActivityResult (
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            //if (isGranted) {
-             //CoroutineScope(Dispatchers.IO).launch {
-                bitmapPodpis = getImage(context, imageUriPodpis!!)
-           // }
-                // app.
-          //  } else Toast.makeText(context,
-              //                      "Для автоматического открытия изображения подкписи требуется разрешение на доступ к файлам",
-                //                    Toast.LENGTH_LONG).show()
-        }*/
-
     val launcher_Pod =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             if (uri != null) {
@@ -124,11 +98,14 @@ fun GetContentExample(context: Context, mainUri: Uri?,
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    var coordinate = remember { mutableStateOf(Coordinate()) }
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }){
         Column {
-            val coordinate=Getlocation(context,scope, snackbarHostState)
+
+            Getlocation(context,scope, snackbarHostState,coordinate)
             val listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
-            val mailTo = selectMailMarket(listMarket,coordinate)//Pair(30.35687977917871,59.932240884442095))
+            val mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
+            Text("Coordinate d: ${coordinate.value.longitude} sh: ${coordinate.value.latitude}")
             Text(mailTo)
 
             Row {
@@ -139,6 +116,19 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                 Button(onClick = { selectImage(context, launcher) }) {
                     Text(text = "Select podpis.")
                 }
+                Button(onClick = {
+                        //протестить координаты
+                        val listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
+                       // coordinate.value = Getlocation(context,scope,snackbarHostState)
+                        val mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
+
+
+
+                }) {
+                    Icon(Icons.Filled.Share, contentDescription = "Поделиться")
+                }
+
+
             }
             if (imageUri_main != null) {
                 val inputstrim = context.contentResolver.openInputStream(imageUri_main!!)
@@ -197,7 +187,7 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                             if (uri != null) {
                                 //протестить координаты
                                 val listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
-                                val mailTo = selectMailMarket(listMarket,coordinate)//Pair(30.35687977917871,59.932240884442095))
+                                val mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
                                 sendBitmap(context, uri, mailTo)
                             }
 
