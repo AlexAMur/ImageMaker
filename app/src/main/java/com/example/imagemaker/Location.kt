@@ -3,6 +3,7 @@ package com.example.imagemaker
 import android.content.Context
 import  android.Manifest
 import android.content.pm.PackageManager
+import android.location.Location
 import android.location.LocationManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -12,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.core.app.ActivityCompat
+import com.google.android.gms.location.LocationListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -32,8 +34,20 @@ fun Getlocation(context: Context, scope: CoroutineScope, snackbarHostState: Snac
         }else{
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             if (locationManager.isLocationEnabled){
+                var latitude :Double=0.0
+                var longitude: Double=0.0
+
+
+
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10f,  {location->
+                         latitude = location.latitude
+                         longitude = location.longitude
+                        // Используйте координаты по вашему усмотрению
+
+                    })
+                Text("Coordinate:dol-${longitude} shir-${latitude}")
                 val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                Text("Coordinate:dol-${location?.longitude} shir-${location?.latitude}")
+                //Text("Coordinate:dol-${location?.longitude} shir-${location?.latitude}")
                 return Coordinate(longitude = location?.longitude?:0.0, latitude = location?.latitude?:0.0)
                 }
                 else{

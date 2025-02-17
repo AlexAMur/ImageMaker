@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.MailTo
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -102,7 +103,7 @@ class MainActivity : ComponentActivity() {
                 }
                 intent?.action == Intent.ACTION_MAIN -> {
 
-                GetContentExample(applicationContext, mainUri, imageUriPodpis)
+                GetContentExample(this, mainUri, imageUriPodpis)
 
                         }
 
@@ -240,12 +241,12 @@ fun saveBitmap(context: Context, bitmap: Bitmap, fileName: String?):Uri? {
     return outUri
 }
 //отправка на почту
-fun sendBitmap(context: Context, uri: Uri){
+fun sendBitmap(context: Context, uri: Uri, mailTo: String){
 
   val intent = Intent().apply {
       action = Intent.ACTION_SEND
       putExtra(Intent.EXTRA_STREAM, uri)
-      putExtra(Intent.EXTRA_EMAIL, arrayOf("adress@gmail.com"))
+      putExtra(Intent.EXTRA_EMAIL, arrayOf(mailTo))
       putExtra(Intent.EXTRA_SUBJECT,"act")
      type=context.resources.getString(R.string.MIME_jpeg)
   }

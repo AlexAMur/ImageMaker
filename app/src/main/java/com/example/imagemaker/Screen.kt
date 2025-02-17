@@ -127,6 +127,10 @@ fun GetContentExample(context: Context, mainUri: Uri?,
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }){
         Column {
             val coordinate=Getlocation(context,scope, snackbarHostState)
+            val listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
+            val mailTo = selectMailMarket(listMarket,coordinate)//Pair(30.35687977917871,59.932240884442095))
+            Text(mailTo)
+
             Row {
                 Button(onClick = { launcher_main.launch(context.resources.getString(R.string.MIME_jpeg)) }) {
                     Text(text = "Load Image")
@@ -194,7 +198,7 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                                 //протестить координаты
                                 val listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
                                 val mailTo = selectMailMarket(listMarket,coordinate)//Pair(30.35687977917871,59.932240884442095))
-                                sendBitmap(context, uri)
+                                sendBitmap(context, uri, mailTo)
                             }
 
                         }) {
