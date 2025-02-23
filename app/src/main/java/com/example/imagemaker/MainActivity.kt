@@ -1,6 +1,7 @@
 package com.example.imagemaker
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
@@ -55,23 +56,12 @@ import java.lang.IllegalStateException
 
 
 val Context.dataStore  by preferencesDataStore(name = "settings")
-var settings = Settings()
+
 class MainActivity : ComponentActivity() {
 
-//         val array = arrayOf(
-//            Market(1 ,"Mosksa", 37.617792080727654
-//                , 55.75537013871674
-//                , "mosk"),
-//
-//            )
-
+    val settings = (application as myApplication).settings?:Settings()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        //получаем настройки
-        val corut = CoroutineScope(Dispatchers.IO).launch {
-            settings=getSettings(applicationContext)
-        }
        setContent {
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
             var mainUri: Uri? = null
@@ -88,23 +78,21 @@ class MainActivity : ComponentActivity() {
             when {
                 intent?.action == Intent.ACTION_SEND -> {
                     if (this.resources.getString(R.string.MIME_jpeg) == intent.type) {
-                        (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let { it ->
+                       // (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let { it ->
+                        (intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java))?.let { it ->
                             mainUri = it
 
-                            GetContentExample(this, mainUri, imageUriPodpis)
+                            GetContentExample(this, mainUri, imageUriPodpis, settings)
                         }
                     } else {
                         Snackbar {
                             Text(this.resources.getString(R.string.not_support_format))
                         }
-                        //Toast.makeText(this, "Не поддерживаемый формат.", Toast.LENGTH_LONG).show()
                     }
                 }
                 intent?.action == Intent.ACTION_MAIN -> {
-
-                GetContentExample(this, mainUri, imageUriPodpis)
-
-                        }
+                    GetContentExample(this, mainUri, imageUriPodpis, settings)
+                    }
 
                  }
 
@@ -116,7 +104,7 @@ class MainActivity : ComponentActivity() {
 override fun onDestroy() {
         super.onDestroy()
         CoroutineScope(Dispatchers.IO).launch {
-            saveSettings( applicationContext, settings)
+           saveSettings( applicationContext, settings)
         }
     }
 
@@ -180,33 +168,7 @@ fun getScreenSize(context: Context):Pair<Int, Int>{
     val height =context.resources.displayMetrics.heightPixels
     return Pair(width, height)
 }
-fun saveFileToDownloads(context: Context, fileName: String, bitmap: Bitmap) {
-    if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        != PackageManager.PERMISSION_GRANTED) {
-        // Запрашиваем разрешение
-        ActivityCompat.requestPermissions(
-            context as Activity,
-            arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-            1000 // Код запроса разрешения
-        )
-    } else {
-        // Если разрешение уже предоставлено, продолжаем
-        writeFile(fileName, bitmap)
-    }
-    // Проверяем разрешение на запись во внешнее хранилище
-    if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        != PackageManager.PERMISSION_GRANTED) {
-        // Запрашиваем разрешение
-        ActivityCompat.requestPermissions(
-            context as Activity,
-            arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-            1000 // Код запроса разрешения
-        )
-    } else {
-        // Если разрешение уже предоставлено, продолжаем
-        writeFile(fileName, bitmap)
-    }
-}
+
 
 private fun writeFile(fileName: String, fileData: Bitmap) {
     // Получаем путь к папке Download
@@ -220,6 +182,7 @@ private fun writeFile(fileName: String, fileData: Bitmap) {
             outStream.flush()
             outStream.close()
 }
+@SuppressLint("SuspiciousIndentation")
 @Throws (IOException::class)
 fun saveBitmap(context: Context, bitmap: Bitmap, fileName: String?):Uri? {
     var outUri: Uri? =null
@@ -233,10 +196,8 @@ fun saveBitmap(context: Context, bitmap: Bitmap, fileName: String?):Uri? {
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI, content)
 
         if (outUri != null){
-        val outStream = context.contentResolver.openOutputStream(outUri)
-         if (outStream == null)
-            return null
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
+        val outStream = context.contentResolver.openOutputStream(outUri) ?: return null
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
         outStream.flush()
         outStream.close()
     }
@@ -255,7 +216,7 @@ fun sendBitmap(context: Context, uri: Uri, mailTo: String){
     context.startActivity(Intent.createChooser(intent,null))
 }
 
-fun selectImage(context: Context,launcher: ManagedActivityResultLauncher<Intent, ActivityResult>){
+fun selectImage(launcher: ManagedActivityResultLauncher<Intent, ActivityResult>){
     val intent =  Intent(Intent.ACTION_OPEN_DOCUMENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply {
         addCategory(Intent.CATEGORY_OPENABLE)
 

@@ -14,7 +14,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -39,9 +38,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun GetContentExample(context: Context, mainUri: Uri?,
-                       UriPodpis: Uri? ) {
-
-
+                       UriPodpis: Uri?,settings: Settings ) {
     var imageUriPodpis by remember { mutableStateOf<Uri?>(UriPodpis) }
     var fileName:String? = null
     var imageUri_main by remember { mutableStateOf<Uri?>(null) }
@@ -66,41 +63,46 @@ fun GetContentExample(context: Context, mainUri: Uri?,
             }
 
         }
-    val launcher_Pod =
-        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            if (uri != null) {
-                val contentResolver = context.contentResolver
-
-                val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-// Check for the freshest data.
-                contentResolver.takePersistableUriPermission(uri, takeFlags)
-                imageUriPodpis = uri
-
-            }
-            settings.uri = imageUriPodpis
-            //val contentResolver =context.contentResolver
-
-//        val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-// Check for the freshest data.
-            //    contentResolver.takePersistableUriPermission(imageUriPodpis!!, takeFlags)
-            //saveSettings(context, Settings(imageUriPodpis.toString()) )
-        }
+//    val launcher_Pod =
+//        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+//            if (uri != null) {
+//                val contentResolver = context.contentResolver
+//
+//                val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+//                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+//// Check for the freshest data.
+//                contentResolver.takePersistableUriPermission(uri, takeFlags)
+//                imageUriPodpis = uri
+//
+//            }
+//            settings.uri = imageUriPodpis
+//            //val contentResolver =context.contentResolver
+//
+////        val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+//// Check for the freshest data.
+//            //    contentResolver.takePersistableUriPermission(imageUriPodpis!!, takeFlags)
+//            //saveSettings(context, Settings(imageUriPodpis.toString()) )
+//        }
     val launcher_main =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             if (uri != null) {
                 imageUri_main = uri
                 editImage = false
                 fileName = fileNameFromUri(uri)
-
             }
         }
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    var coordinate = remember { mutableStateOf(Coordinate()) }
+    val coordinate = remember { mutableStateOf(Coordinate()) }
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }){
         Column {
+
+       /*     if (isGooglePlayServicesAvailable(context)==SERVICE_INVALID) {
+                LaunchedEffect(scope) {
+                    snackbarHostState.showSnackbar("Google play service не поддерживаются!")
+                }
+            }*/
 
             Getlocation(context,scope, snackbarHostState,coordinate)
             val listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
@@ -113,20 +115,16 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                     Text(text = "Load Image")
                 }
 
-                Button(onClick = { selectImage(context, launcher) }) {
+                Button(onClick = { selectImage(launcher) }) {
                     Text(text = "Select podpis.")
                 }
-                Button(onClick = {
-                        //протестить координаты
-                        val listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
-                       // coordinate.value = Getlocation(context,scope,snackbarHostState)
-                        val mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
-
-
-
-                }) {
-                    Icon(Icons.Filled.Share, contentDescription = "Поделиться")
-                }
+//                Button(onClick = {
+//                        //протестить координаты
+//                        val listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
+//                        val mailTo = selectMailMarket(listMarket,coordinate.value)
+//                }) {
+//                    Icon(Icons.Filled.Share, contentDescription = "Поделиться")
+//                }
 
 
             }

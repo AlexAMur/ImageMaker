@@ -20,52 +20,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun locaion(context: Context):Coordinate{
-
-    val coordinate= Coordinate(0.0,0.0)
-    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    var locationByGps :Location? = null
-    val gpsLocationListener: LocationListener = object : LocationListener {
-        override fun onLocationChanged(location: Location) {
-            locationByGps = location
-        }
-
-        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-        override fun onProviderEnabled(provider: String) {}
-        override fun onProviderDisabled(provider: String) {}
-    }
-    if (locationManager.isLocationEnabled){
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            getPermissionlocation()
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-
-        }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10f, gpsLocationListener)
-        }
-    if (locationByGps != null) {
-
-        coordinate.longitude= locationByGps?.longitude?:0.0
-        coordinate.longitude= locationByGps?.longitude?:0.0
-            //use latitude and longitude as per your need
-        }
-    return coordinate
-}
-
-
-@Composable
 fun Getlocation(context: Context, scope: CoroutineScope, snackbarHostState: SnackbarHostState, coordinate: MutableState<Coordinate>):Coordinate{
     if (ActivityCompat.checkSelfPermission(context,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -74,9 +28,7 @@ fun Getlocation(context: Context, scope: CoroutineScope, snackbarHostState: Snac
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-           if(getPermissionlocation()){
-             //  Getlocation(context, scope, snackbarHostState)
-           }
+
 
         }else{
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -92,7 +44,7 @@ fun Getlocation(context: Context, scope: CoroutineScope, snackbarHostState: Snac
             override fun onProviderDisabled(provider: String) {}
         }
             if (locationManager.isLocationEnabled){
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10f,  gpsLocationListener)
+                //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10f,  gpsLocationListener)
 
                // val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
               //  locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, null, null
@@ -138,3 +90,4 @@ fun getPermissionlocation():Boolean{
     }
     return isPermission
 }
+
