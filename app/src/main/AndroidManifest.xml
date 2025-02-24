@@ -12,7 +12,7 @@
         android:roundIcon="@drawable/app_image"
         android:supportsRtl="true"
         android:theme="@style/Theme.ImageMaker"
-        android:name=".myApplication"
+        android:name=".MyApplication"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"

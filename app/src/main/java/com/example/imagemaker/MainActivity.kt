@@ -11,6 +11,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.MailTo
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
@@ -21,6 +22,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResult
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
@@ -54,15 +56,14 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.IllegalStateException
 
-
-
-
 class MainActivity : ComponentActivity() {
     //val app =(application as myApplication)
-    var settings =Settings()
+    var settings:Settings =Settings()
+
+    @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val app =(application as myApplication)
+        val app =(application as MyApplication)
          settings = app.settings?:Settings()
        setContent {
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
@@ -80,8 +81,14 @@ class MainActivity : ComponentActivity() {
             when {
                 intent?.action == Intent.ACTION_SEND -> {
                     if (this.resources.getString(R.string.MIME_jpeg) == intent.type) {
-                       // (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let { it ->
-                        (intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java))?.let { it ->
+
+                    var tmpUri:Uri? =null
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+                              tmpUri=intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri
+                        else
+                                tmpUri =intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+
+                        tmpUri?.let { it ->
                             mainUri = it
 
                             GetContentExample(this, mainUri, imageUriPodpis, settings)
