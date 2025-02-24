@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
-        android:name=".myApplication"
+
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -12,6 +12,7 @@
         android:roundIcon="@drawable/app_image"
         android:supportsRtl="true"
         android:theme="@style/Theme.ImageMaker"
+        android:name=".myApplication"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
@@ -30,6 +31,7 @@
         </activity>
 
     </application>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>

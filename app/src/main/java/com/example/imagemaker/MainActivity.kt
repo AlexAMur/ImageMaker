@@ -55,13 +55,15 @@ import java.io.IOException
 import java.lang.IllegalStateException
 
 
-val Context.dataStore  by preferencesDataStore(name = "settings")
+
 
 class MainActivity : ComponentActivity() {
-
-    val settings = (application as myApplication).settings?:Settings()
+    //val app =(application as myApplication)
+    var settings =Settings()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val app =(application as myApplication)
+         settings = app.settings?:Settings()
        setContent {
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
             var mainUri: Uri? = null
@@ -115,28 +117,7 @@ override fun onDestroy() {
     }
 }
 
-suspend fun  getSettings(context: Context):Settings{
-    val settings = Settings()
-//    if (context.dataStore.data == null){
-//        Toast.makeText(context, "Not settings",Toast.LENGTH_LONG).show()
-//    }
-    try {
-        context.dataStore.data.map {
-            if (it[stringPreferencesKey(Settings::uri.name)] !="")
-            settings.uri = Uri.parse(it[stringPreferencesKey(Settings::uri.name)])
-            else
-                settings.uri=null
-            settings.x = (it[stringPreferencesKey(Settings::x.name)])?.toInt() ?: 0
-            settings.y = (it[stringPreferencesKey(Settings::y.name)])?.toInt() ?: 0
-        }.first()
-    } catch (e: Exception){
-        Log.e("ImageMaker",e.message.toString())
-        Toast.makeText(context, "Not settings",Toast.LENGTH_LONG).show()
-    }finally {
-        return settings
-    }
 
-}
 suspend fun saveSettings(context: Context, settings: Settings){
 // сохранение настроек
     if(settings.uri!=null) {
