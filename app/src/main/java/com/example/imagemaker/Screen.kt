@@ -11,8 +11,12 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
@@ -27,11 +31,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
 
@@ -39,9 +46,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun GetContentExample(context: Context, mainUri: Uri?,
                        UriPodpis: Uri?,settings: Settings ) {
+
     var imageUriPodpis by remember { mutableStateOf<Uri?>(UriPodpis) }
     var fileName:String? = null
     var imageUri_main by remember { mutableStateOf<Uri?>(null) }
+    var listMarket by remember { mutableStateOf<Array<Market>>(emptyArray()) }// = createArrayMarket( readJsonFile(context, "magazin.json"))
+    var mailTo by remember { mutableStateOf("")  }
     if (mainUri != null){
         imageUri_main = mainUri  //тут по кругу
         fileName=fileNameFromUri(imageUri_main)
@@ -104,19 +114,19 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                 }
             }*/
 
-            Getlocation(context,scope, snackbarHostState,coordinate)
-            val listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
-            val mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
-            Text("Coordinate d: ${coordinate.value.longitude} sh: ${coordinate.value.latitude}")
-            Text(mailTo)
+            getLocation(context,scope, snackbarHostState,coordinate)
+             listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
+             mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
+            //Text("Координаты Д: ${coordinate.value.longitude} Ш: ${coordinate.value.latitude}")
+            Text("mailTo: $mailTo", modifier = Modifier.fillMaxWidth().padding(10.dp,5.dp,5.dp,10.dp))
 
-            Row {
+            Row(Modifier.fillMaxWidth().padding(10.dp), horizontalArrangement = Arrangement.SpaceAround) {
                 Button(onClick = { launcher_main.launch(context.resources.getString(R.string.MIME_jpeg)) }) {
-                    Text(text = "Load Image")
+                    Text(text = "Выбрать акт")
                 }
 
                 Button(onClick = { selectImage(launcher) }) {
-                    Text(text = "Select podpis.")
+                    Text(text = "Подписать")
                 }
 //                Button(onClick = {
 //                        //протестить координаты
@@ -171,16 +181,16 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                 }
                 Image(painter = BitmapPainter(mbitmap.asImageBitmap()), contentDescription = "Image")
                 if (editImage) {
-                    Row {
-                        Button(onClick = {
+                    Row(Modifier.fillMaxWidth().padding(10.dp), horizontalArrangement = Arrangement.Center) {
+                        Button(modifier = Modifier.padding(start = 10.dp, end = 20.dp),onClick = {
                             saveBitmap(context, mbitmap, fileName)
                             scope.launch {
                                 snackbarHostState.showSnackbar("${context.resources.getString(R.string.saveMassage)} $fileName.")
                             }
                         }) {
-                            Text("Save")
+                            Text("Сохранить")
                         }
-                        Button(onClick = {
+                        Button(modifier = Modifier.padding(start = 20.dp, end = 10.dp), onClick = {
                             val uri = saveBitmap(context, mbitmap, fileName)
                             if (uri != null) {
                                 //протестить координаты

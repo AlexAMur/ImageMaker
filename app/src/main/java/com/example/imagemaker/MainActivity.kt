@@ -55,17 +55,20 @@ import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.IllegalStateException
+import kotlin.coroutines.CoroutineContext
 
 class MainActivity : ComponentActivity() {
-    //val app =(application as myApplication)
+
     var settings:Settings =Settings()
 
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val app =(application as MyApplication)
-         settings = app.settings?:Settings()
-       setContent {
+        settings = app.settings?:Settings()
+
+        setContent {
+
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
             var mainUri: Uri? = null
             if (settings.uri != null) {
@@ -110,21 +113,15 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-override fun onDestroy() {
+    override fun onDestroy() {
         super.onDestroy()
-        CoroutineScope(Dispatchers.IO).launch {
-           saveSettings( applicationContext, settings)
+        if (settings!= (application as MyApplication).settings){
+            CoroutineScope(Dispatchers.IO).launch {
+                saveSettings( applicationContext, settings)
+            }
         }
     }
-
-
-    override fun onResume() {
-        super.onResume()
-
-    }
 }
-
-
 suspend fun saveSettings(context: Context, settings: Settings){
 // сохранение настроек
     if(settings.uri!=null) {
@@ -136,7 +133,7 @@ suspend fun saveSettings(context: Context, settings: Settings){
     }
 }
 
-//suspend fun getImage(context: Context, uri: Uri):Bitmap {
+
 fun getImage(context: Context, uri: Uri):Bitmap {
     try {
         val inputstrim = context.contentResolver.openInputStream(uri)
@@ -157,20 +154,7 @@ fun getScreenSize(context: Context):Pair<Int, Int>{
     return Pair(width, height)
 }
 
-
-private fun writeFile(fileName: String, fileData: Bitmap) {
-    // Получаем путь к папке Download
-    val downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-    val file = File(downloadDir, fileName)
-
-    //try {
-        // Открываем поток для записи
-        val outStream=FileOutputStream(file)
-        fileData .compress(Bitmap.CompressFormat.JPEG, 100, outStream)
-            outStream.flush()
-            outStream.close()
-}
-@SuppressLint("SuspiciousIndentation")
+//@SuppressLint("SuspiciousIndentation")
 @Throws (IOException::class)
 fun saveBitmap(context: Context, bitmap: Bitmap, fileName: String?):Uri? {
     var outUri: Uri? =null
@@ -184,22 +168,21 @@ fun saveBitmap(context: Context, bitmap: Bitmap, fileName: String?):Uri? {
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI, content)
 
         if (outUri != null){
-        val outStream = context.contentResolver.openOutputStream(outUri) ?: return null
+            val outStream = context.contentResolver.openOutputStream(outUri) ?: return null
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
-        outStream.flush()
-        outStream.close()
-    }
+            outStream.flush()
+            outStream.close()
+        }
     return outUri
 }
 //отправка на почту
 fun sendBitmap(context: Context, uri: Uri, mailTo: String){
-
   val intent = Intent().apply {
       action = Intent.ACTION_SEND
       putExtra(Intent.EXTRA_STREAM, uri)
       putExtra(Intent.EXTRA_EMAIL, arrayOf(mailTo))
       putExtra(Intent.EXTRA_SUBJECT,"act")
-     type=context.resources.getString(R.string.MIME_jpeg)
+      type=context.resources.getString(R.string.MIME_jpeg)
   }
     context.startActivity(Intent.createChooser(intent,null))
 }

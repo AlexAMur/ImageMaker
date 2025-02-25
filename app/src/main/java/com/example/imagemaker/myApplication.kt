@@ -4,13 +4,13 @@ import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -23,12 +23,15 @@ class MyApplication: Application() {
     override fun onCreate() {
         super.onCreate()
         //получаем настройки
-            CoroutineScope(Dispatchers.IO).launch {
+            runBlocking {// CoroutineScope(Dispatchers.IO).launch {
                 settings = getSettings(applicationContext.dataStore)
+
             }
+
     }
 private suspend fun  getSettings(context: DataStore<Preferences>):Settings{
     val settings = Settings()
+  //
     try {
         context.data.map {
             if (it[stringPreferencesKey(Settings::uri.name)] !="")
