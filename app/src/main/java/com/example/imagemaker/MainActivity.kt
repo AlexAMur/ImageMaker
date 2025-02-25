@@ -9,6 +9,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.net.MailTo
 import android.net.Uri
 import android.os.Build
@@ -31,6 +34,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,6 +64,11 @@ import kotlin.coroutines.CoroutineContext
 class MainActivity : ComponentActivity() {
 
     var settings:Settings =Settings()
+    var scope:CoroutineScope? =null
+    var snackBarHostState: SnackbarHostState? = null
+    var coordinate: MutableState<Coordinate>? =null
+
+    var gpsLocationListener: LocationListener? = null
 
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,6 +77,11 @@ class MainActivity : ComponentActivity() {
         settings = app.settings?:Settings()
 
         setContent {
+
+             scope = rememberCoroutineScope()
+             snackBarHostState = remember { SnackbarHostState() }
+             coordinate = remember { mutableStateOf(Coordinate()) }
+
 
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
             var mainUri: Uri? = null
@@ -94,7 +108,7 @@ class MainActivity : ComponentActivity() {
                         tmpUri?.let { it ->
                             mainUri = it
 
-                            GetContentExample(this, mainUri, imageUriPodpis, settings)
+                            GetContentExample(this, mainUri, imageUriPodpis, settings,scope,snackBarHostState!!)
                         }
                     } else {
                         Snackbar {
@@ -103,7 +117,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 intent?.action == Intent.ACTION_MAIN -> {
-                    GetContentExample(this, mainUri, imageUriPodpis, settings)
+                    GetContentExample(this, mainUri, imageUriPodpis, settings,scope,snackBarHostState!!)
                     }
 
                  }
@@ -121,6 +135,33 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+
+          getLocation(this, scope,snackBarHostState, coordinate, gpsLocationListener)
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        gpsLocationListener =null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        gpsLocationListener = object : LocationListener {
+            override fun onLocationChanged(location: Location) {
+                val tmpCoordinate =Coordinate(longitude = location.longitude,
+                    latitude = location.latitude)
+                Log.e("ImageMLocation","Определение координат!!!!!!!!!!!!!!" )
+                coordinate?.value = tmpCoordinate
+            }
+            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderDisabled(provider: String) {}
+        }
+    }
 }
 suspend fun saveSettings(context: Context, settings: Settings){
 // сохранение настроек
@@ -133,64 +174,3 @@ suspend fun saveSettings(context: Context, settings: Settings){
     }
 }
 
-
-fun getImage(context: Context, uri: Uri):Bitmap {
-    try {
-        val inputstrim = context.contentResolver.openInputStream(uri)
-        val  bitmap=BitmapFactory.decodeStream(inputstrim)
-        inputstrim?.close()
-        return  bitmap
-    }
-    catch ( fileError : FileNotFoundException){
-        Log.e("ImageMaker" ,fileError.message?:"empty")
-    }
-   return Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
-}
-
-
-fun getScreenSize(context: Context):Pair<Int, Int>{
-    val width =context.resources.displayMetrics.widthPixels
-    val height =context.resources.displayMetrics.heightPixels
-    return Pair(width, height)
-}
-
-//@SuppressLint("SuspiciousIndentation")
-@Throws (IOException::class)
-fun saveBitmap(context: Context, bitmap: Bitmap, fileName: String?):Uri? {
-    var outUri: Uri? =null
-    val content = ContentValues().apply {
-        if (fileName != null)
-            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-        else
-            put(MediaStore.MediaColumns.DISPLAY_NAME, "temp_filename.jpg")
-        }
-         outUri = context.contentResolver.insert(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, content)
-
-        if (outUri != null){
-            val outStream = context.contentResolver.openOutputStream(outUri) ?: return null
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
-            outStream.flush()
-            outStream.close()
-        }
-    return outUri
-}
-//отправка на почту
-fun sendBitmap(context: Context, uri: Uri, mailTo: String){
-  val intent = Intent().apply {
-      action = Intent.ACTION_SEND
-      putExtra(Intent.EXTRA_STREAM, uri)
-      putExtra(Intent.EXTRA_EMAIL, arrayOf(mailTo))
-      putExtra(Intent.EXTRA_SUBJECT,"act")
-      type=context.resources.getString(R.string.MIME_jpeg)
-  }
-    context.startActivity(Intent.createChooser(intent,null))
-}
-
-fun selectImage(launcher: ManagedActivityResultLauncher<Intent, ActivityResult>){
-    val intent =  Intent(Intent.ACTION_OPEN_DOCUMENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply {
-        addCategory(Intent.CATEGORY_OPENABLE)
-
-    }
-    launcher.launch(intent)
-}

@@ -40,13 +40,15 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun GetContentExample(context: Context, mainUri: Uri?,
-                       UriPodpis: Uri?,settings: Settings ) {
+                       UriPodpis: Uri?,settings: Settings, scope:CoroutineScope?,snackBarHostState: SnackbarHostState ) {
 
+    val coordinate = remember { mutableStateOf(Coordinate()) }
     var imageUriPodpis by remember { mutableStateOf<Uri?>(UriPodpis) }
     var fileName:String? = null
     var imageUri_main by remember { mutableStateOf<Uri?>(null) }
@@ -102,10 +104,8 @@ fun GetContentExample(context: Context, mainUri: Uri?,
             }
         }
 
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val coordinate = remember { mutableStateOf(Coordinate()) }
-    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }){
+
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }){
         Column {
 
        /*     if (isGooglePlayServicesAvailable(context)==SERVICE_INVALID) {
@@ -114,7 +114,7 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                 }
             }*/
 
-            getLocation(context,scope, snackbarHostState,coordinate)
+          //  getLocation(context,scope, snackBarHostState,coordinate)
              listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
              mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
             //Text("Координаты Д: ${coordinate.value.longitude} Ш: ${coordinate.value.latitude}")
@@ -184,8 +184,8 @@ fun GetContentExample(context: Context, mainUri: Uri?,
                     Row(Modifier.fillMaxWidth().padding(10.dp), horizontalArrangement = Arrangement.Center) {
                         Button(modifier = Modifier.padding(start = 10.dp, end = 20.dp),onClick = {
                             saveBitmap(context, mbitmap, fileName)
-                            scope.launch {
-                                snackbarHostState.showSnackbar("${context.resources.getString(R.string.saveMassage)} $fileName.")
+                            scope?.launch {
+                                snackBarHostState.showSnackbar("${context.resources.getString(R.string.saveMassage)} $fileName.")
                             }
                         }) {
                             Text("Сохранить")
