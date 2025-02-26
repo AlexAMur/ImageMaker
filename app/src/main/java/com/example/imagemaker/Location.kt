@@ -2,6 +2,7 @@ package com.example.imagemaker
 
 import android.content.Context
 import  android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
@@ -21,10 +22,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 //@Composable
+@SuppressLint("SuspiciousIndentation")
 fun getLocation(context: Context, scope: CoroutineScope?,
                 snackBarHostState: SnackbarHostState?,
                 coordinate: MutableState<Coordinate>?,
-                gpsLocationListener: LocationListener?):Coordinate{
+                gpsLocationListener: LocationListener?) {
     if (ActivityCompat.checkSelfPermission(context,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
@@ -36,9 +38,7 @@ fun getLocation(context: Context, scope: CoroutineScope?,
 
         }else{
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        var gpslocation: Location?=null
-
-            if (locationManager.isLocationEnabled){
+              if (locationManager.isLocationEnabled){
                 if (gpsLocationListener != null) {
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                         5000, 10f,  gpsLocationListener)
@@ -47,7 +47,7 @@ fun getLocation(context: Context, scope: CoroutineScope?,
                // val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
               //  locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER, null, null
 
-                return Coordinate(longitude = gpslocation?.longitude?:0.0, latitude = gpslocation?.latitude?:0.0)
+
                 }
                 else{
                   /*  LaunchedEffect(scope){
@@ -57,5 +57,5 @@ fun getLocation(context: Context, scope: CoroutineScope?,
                     }*/
                 }
             }
-   return Coordinate(longitude = 0.0, latitude = 0.0)
+   //return Coordinate(longitude = 0.0, latitude = 0.0)
 }

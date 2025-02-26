@@ -63,24 +63,26 @@ import kotlin.coroutines.CoroutineContext
 
 class MainActivity : ComponentActivity() {
 
-    var settings:Settings =Settings()
-    var scope:CoroutineScope? =null
+    var settings: Settings = Settings()
+    var scope: CoroutineScope? = null
     var snackBarHostState: SnackbarHostState? = null
-    var coordinate: MutableState<Coordinate>? =null
+    var coordinate: MutableState<Coordinate>? = null
 
-    var gpsLocationListener: LocationListener? = null
+    var mailTo: MutableState<String>? =null // by remember { mutableStateOf("")  }
+
+
 
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val app =(application as MyApplication)
-        settings = app.settings?:Settings()
+        val app = (application as MyApplication)
+        settings = app.settings ?: Settings()
 
         setContent {
 
-             scope = rememberCoroutineScope()
-             snackBarHostState = remember { SnackbarHostState() }
-             coordinate = remember { mutableStateOf(Coordinate()) }
+            scope = rememberCoroutineScope()
+            snackBarHostState = remember { SnackbarHostState() }
+            coordinate = remember { mutableStateOf(Coordinate()) }
 
 
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
@@ -94,78 +96,105 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-            val intent = intent
-            when {
-                intent?.action == Intent.ACTION_SEND -> {
-                    if (this.resources.getString(R.string.MIME_jpeg) == intent.type) {
+                    val intent = intent
+                    when {
+                        intent?.action == Intent.ACTION_SEND -> {
+                            if (this.resources.getString(R.string.MIME_jpeg) == intent.type) {
 
-                    var tmpUri:Uri? =null
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
-                              tmpUri=intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri
-                        else
-                                tmpUri =intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+                                var tmpUri: Uri? = null
+                                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+                                    tmpUri =
+                                        intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri
+                                else
+                                    tmpUri = intent.getParcelableExtra(
+                                        Intent.EXTRA_STREAM,
+                                        Uri::class.java
+                                    )
 
-                        tmpUri?.let { it ->
-                            mainUri = it
+                                tmpUri?.let { it ->
+                                    mainUri = it
 
-                            GetContentExample(this, mainUri, imageUriPodpis, settings,scope,snackBarHostState!!)
+                                    GetContentExample(
+                                        this,
+                                        mainUri,
+                                        imageUriPodpis,
+                                        settings,
+                                        scope,
+                                        snackBarHostState!!,
+                                        mailTo
+                                    )
+                                }
+                            } else {
+                                Snackbar {
+                                    Text(this.resources.getString(R.string.not_support_format))
+                                }
+                            }
                         }
-                    } else {
-                        Snackbar {
-                            Text(this.resources.getString(R.string.not_support_format))
-                        }
-                    }
-                }
-                intent?.action == Intent.ACTION_MAIN -> {
-                    GetContentExample(this, mainUri, imageUriPodpis, settings,scope,snackBarHostState!!)
-                    }
 
-                 }
+                        intent?.action == Intent.ACTION_MAIN -> {
+                            GetContentExample(
+                                this,
+                                mainUri,
+                                imageUriPodpis,
+                                settings,
+                                scope,
+                                snackBarHostState!!,
+                                mailTo
+                            )
+                        }
+
+                    }
 
                 }
 
             }
         }
     }
+
     override fun onDestroy() {
         super.onDestroy()
-        if (settings!= (application as MyApplication).settings){
+        if (settings != (application as MyApplication).settings) {
             CoroutineScope(Dispatchers.IO).launch {
-                saveSettings( applicationContext, settings)
+                saveSettings(applicationContext, settings)
             }
         }
     }
 
     override fun onStart() {
         super.onStart()
-
-          getLocation(this, scope,snackBarHostState, coordinate, gpsLocationListener)
-
-    }
-
-    override fun onPause() {
-        super.onPause()
-        gpsLocationListener =null
-    }
-
-    override fun onResume() {
-        super.onResume()
-        gpsLocationListener = object : LocationListener {
+        var gpsLocationListener: LocationListener? = object : LocationListener {
             override fun onLocationChanged(location: Location) {
-                val tmpCoordinate =Coordinate(longitude = location.longitude,
-                    latitude = location.latitude)
-                Log.e("ImageMLocation","Определение координат!!!!!!!!!!!!!!" )
+                val tmpCoordinate = Coordinate(
+                    longitude = location.longitude,
+                    latitude = location.latitude
+                )
+                Log.e("ImageMLocation", "Определение координат!!!!!!!!!!!!!!")
                 coordinate?.value = tmpCoordinate
+                val market =(application as MyApplication).listMarket
+                mailTo?.value = selectMailMarket(market?: arrayOf(Market()), coordinate?.value?:Coordinate())//Pair(30.35687977917871,59.932240884442095))
             }
+
             override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
             override fun onProviderEnabled(provider: String) {}
             override fun onProviderDisabled(provider: String) {}
         }
+
+        getLocation(this, scope, snackBarHostState, coordinate, gpsLocationListener)
+    }
+
+    override fun onPause() {
+        super.onPause()
+     //   getLocation(this, scope, snackBarHostState, coordinate, null)
+    }
+
+    override fun onResume() {
+        super.onResume()
+     //   getLocation(this, scope, snackBarHostState, coordinate, gpsLocationListener)
     }
 }
-suspend fun saveSettings(context: Context, settings: Settings){
+suspend fun saveSettings(context: Context, settings: Settings) {
 // сохранение настроек
-    if(settings.uri!=null) {
+    if (settings.uri != null) {
         context.dataStore.edit {
             it[stringPreferencesKey(Settings::uri.name)] = settings.uri.toString()
             it[stringPreferencesKey(Settings::x.name)] = settings.x.toString()

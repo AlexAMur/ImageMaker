@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.MailTo
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,6 +27,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,14 +48,14 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun GetContentExample(context: Context, mainUri: Uri?,
-                       UriPodpis: Uri?,settings: Settings, scope:CoroutineScope?,snackBarHostState: SnackbarHostState ) {
+                       UriPodpis: Uri?,settings: Settings, scope:CoroutineScope?,
+                      snackBarHostState: SnackbarHostState,
+                        mailTo: MutableState<String>?) {
 
     val coordinate = remember { mutableStateOf(Coordinate()) }
     var imageUriPodpis by remember { mutableStateOf<Uri?>(UriPodpis) }
     var fileName:String? = null
     var imageUri_main by remember { mutableStateOf<Uri?>(null) }
-    var listMarket by remember { mutableStateOf<Array<Market>>(emptyArray()) }// = createArrayMarket( readJsonFile(context, "magazin.json"))
-    var mailTo by remember { mutableStateOf("")  }
     if (mainUri != null){
         imageUri_main = mainUri  //тут по кругу
         fileName=fileNameFromUri(imageUri_main)
@@ -115,8 +117,9 @@ fun GetContentExample(context: Context, mainUri: Uri?,
             }*/
 
           //  getLocation(context,scope, snackBarHostState,coordinate)
-             listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
-             mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
+
+             //aaa listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
+            // mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
             //Text("Координаты Д: ${coordinate.value.longitude} Ш: ${coordinate.value.latitude}")
             Text("mailTo: $mailTo", modifier = Modifier.fillMaxWidth().padding(10.dp,5.dp,5.dp,10.dp))
 

@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.MutableState
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -17,6 +18,7 @@ import java.lang.NullPointerException
 val Context.dataStore  by preferencesDataStore(name = "settings")
 class MyApplication: Application() {
     var settings: Settings?  = Settings()
+    var listMarket: Array<Market>? = null // by remember { mutableStateOf<Array<Market>>(emptyArray()) }//
     override fun onCreate() {
         super.onCreate()
         //получаем настройки
@@ -24,7 +26,7 @@ class MyApplication: Application() {
                 settings = getSettings(applicationContext.dataStore)
 
             }
-
+       listMarket = createArrayMarket( readJsonFile(applicationContext, "magazin.json"))
     }
 private suspend fun  getSettings(context: DataStore<Preferences>):Settings{
     val settings = Settings()
