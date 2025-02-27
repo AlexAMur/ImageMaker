@@ -49,7 +49,7 @@ fun GetContentExample(
     mailTo: String
 ) {
 
-    val coordinate = remember { mutableStateOf(Coordinate()) }
+    //val coordinate = remember { mutableStateOf(Coordinate()) }
     var imageUriPodpis by remember { mutableStateOf<Uri?>(UriPodpis) }
     var fileName:String? = null
     var imageUri_main by remember { mutableStateOf<Uri?>(null) }
@@ -194,8 +194,8 @@ fun GetContentExample(
                             val uri = saveBitmap(context, mbitmap, fileName)
                             if (uri != null) {
                                 //протестить координаты
-                                val listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
-                                val mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
+                               // val listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
+                                //val mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
                                 sendBitmap(context, uri, mailTo)
                             }
 

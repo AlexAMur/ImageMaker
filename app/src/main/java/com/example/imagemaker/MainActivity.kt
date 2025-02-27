@@ -19,6 +19,7 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.core.app.ActivityCompat
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.imagemaker.ui.theme.ImageMakerTheme
@@ -39,8 +41,8 @@ class MainActivity : ComponentActivity() {
     var scope: CoroutineScope? = null
     var snackBarHostState: SnackbarHostState? = null
     var coordinate: MutableState<Coordinate>? = null
-
     var gpsLocationListener: LocationListener? = null
+    var  locationManager: LocationManager? =null
 
 
     @SuppressLint("SuspiciousIndentation", "MissingPermission")
@@ -60,8 +62,9 @@ class MainActivity : ComponentActivity() {
             if (settings.uri != null) {
                 imageUriPodpis = settings.uri
             }
-            val locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            if (locationManager.isLocationEnabled){
+            if (getPermissionLocation(this)){
+              locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            if (locationManager?.isLocationEnabled == true){
                 gpsLocationListener = object : LocationListener {
                     override fun onLocationChanged(location: Location) {
                         val tmpCoordinate = Coordinate(
@@ -73,7 +76,6 @@ class MainActivity : ComponentActivity() {
                         val market =(application as MyApplication).listMarket
                         mailTo = selectMailMarket(market!!, coordinate?.value!!)//Pair(30.35687977917871,59.932240884442095))
                     }
-
                     override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
                     override fun onProviderEnabled(provider: String) {}
                     override fun onProviderDisabled(provider: String) {}
@@ -81,9 +83,20 @@ class MainActivity : ComponentActivity() {
 
 
                 if (gpsLocationListener != null) {
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                         5000, 10f,  gpsLocationListener!!)
                 }
+            }
+            else{
+                  LaunchedEffect(scope){
+                        launch {
+                        snackBarHostState?.showSnackbar(applicationContext.resources.getString(R.string.EnableLocation))
+                        }
+                    }
+            }
+            }
+            else{
+                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION))
             }
             ImageMakerTheme {
                 // A surface container using the 'background' color from the theme
@@ -158,35 +171,17 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-    /*    gpsLocationListener = object : LocationListener {
-            override fun onLocationChanged(location: Location) {
-                val tmpCoordinate = Coordinate(
-                    longitude = location.longitude,
-                    latitude = location.latitude
-                )
-                Log.e("ImageMLocation", "Определение координат!!!!!!!!!!!!!!")
-                coordinate?.value = tmpCoordinate
-                val market =(application as MyApplication).listMarket
-                mailTo?.value = selectMailMarket(market?: arrayOf(Market()), coordinate?.value?:Coordinate())//Pair(30.35687977917871,59.932240884442095))
-            }
 
-            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-            override fun onProviderEnabled(provider: String) {}
-            override fun onProviderDisabled(provider: String) {}
-        }
-        getLocation(this, scope, snackBarHostState, coordinate, gpsLocationListener)
-
-     */
     }
 
     override fun onPause() {
         super.onPause()
-        getLocation(this, scope, snackBarHostState, coordinate, null)
+
     }
 
     override fun onResume() {
         super.onResume()
-        getLocation(this, scope, snackBarHostState, coordinate, gpsLocationListener)
+      //  getLocation(this, scope, snackBarHostState, coordinate, gpsLocationListener)
     }
 }
 suspend fun saveSettings(context: Context, settings: Settings) {
