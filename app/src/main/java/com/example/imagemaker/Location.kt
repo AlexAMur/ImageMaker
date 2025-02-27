@@ -37,7 +37,7 @@ fun getLocation(context: Context, scope: CoroutineScope?,
 
 
         }else{
-            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+           /* val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
               if (locationManager.isLocationEnabled){
                 if (gpsLocationListener != null) {
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
@@ -56,6 +56,8 @@ fun getLocation(context: Context, scope: CoroutineScope?,
                         }
                     }*/
                 }
+                
+            */
             }
    //return Coordinate(longitude = 0.0, latitude = 0.0)
 }

@@ -1,39 +1,24 @@
 package com.example.imagemaker
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.net.MailTo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.os.Parcelable
-import android.provider.MediaStore
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.setContent
-import androidx.activity.result.ActivityResult
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,25 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import com.example.imagemaker.ui.theme.ImageMakerTheme
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
-import java.lang.IllegalStateException
-import kotlin.coroutines.CoroutineContext
 
 class MainActivity : ComponentActivity() {
 
@@ -68,11 +40,10 @@ class MainActivity : ComponentActivity() {
     var snackBarHostState: SnackbarHostState? = null
     var coordinate: MutableState<Coordinate>? = null
 
-    var mailTo: MutableState<String>? =null // by remember { mutableStateOf("")  }
+    var gpsLocationListener: LocationListener? = null
 
 
-
-    @SuppressLint("SuspiciousIndentation")
+    @SuppressLint("SuspiciousIndentation", "MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val app = (application as MyApplication)
@@ -83,12 +54,36 @@ class MainActivity : ComponentActivity() {
             scope = rememberCoroutineScope()
             snackBarHostState = remember { SnackbarHostState() }
             coordinate = remember { mutableStateOf(Coordinate()) }
-
-
+            var mailTo  by remember { mutableStateOf("")  }
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
             var mainUri: Uri? = null
             if (settings.uri != null) {
                 imageUriPodpis = settings.uri
+            }
+            val locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            if (locationManager.isLocationEnabled){
+                gpsLocationListener = object : LocationListener {
+                    override fun onLocationChanged(location: Location) {
+                        val tmpCoordinate = Coordinate(
+                            longitude = location.longitude,
+                            latitude = location.latitude
+                        )
+                        Log.e("ImageMLocation", "Определение координат!!!")
+                        coordinate?.value = tmpCoordinate
+                        val market =(application as MyApplication).listMarket
+                        mailTo = selectMailMarket(market!!, coordinate?.value!!)//Pair(30.35687977917871,59.932240884442095))
+                    }
+
+                    override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+                    override fun onProviderEnabled(provider: String) {}
+                    override fun onProviderDisabled(provider: String) {}
+                }
+
+
+                if (gpsLocationListener != null) {
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                        5000, 10f,  gpsLocationListener!!)
+                }
             }
             ImageMakerTheme {
                 // A surface container using the 'background' color from the theme
@@ -97,6 +92,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val intent = intent
+
                     when {
                         intent?.action == Intent.ACTION_SEND -> {
                             if (this.resources.getString(R.string.MIME_jpeg) == intent.type) {
@@ -162,7 +158,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        var gpsLocationListener: LocationListener? = object : LocationListener {
+    /*    gpsLocationListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 val tmpCoordinate = Coordinate(
                     longitude = location.longitude,
@@ -178,18 +174,19 @@ class MainActivity : ComponentActivity() {
             override fun onProviderEnabled(provider: String) {}
             override fun onProviderDisabled(provider: String) {}
         }
-
         getLocation(this, scope, snackBarHostState, coordinate, gpsLocationListener)
+
+     */
     }
 
     override fun onPause() {
         super.onPause()
-     //   getLocation(this, scope, snackBarHostState, coordinate, null)
+        getLocation(this, scope, snackBarHostState, coordinate, null)
     }
 
     override fun onResume() {
         super.onResume()
-     //   getLocation(this, scope, snackBarHostState, coordinate, gpsLocationListener)
+        getLocation(this, scope, snackBarHostState, coordinate, gpsLocationListener)
     }
 }
 suspend fun saveSettings(context: Context, settings: Settings) {
