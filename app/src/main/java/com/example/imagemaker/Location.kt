@@ -19,15 +19,55 @@ import androidx.compose.runtime.SideEffect
 import androidx.core.app.ActivityCompat
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 //@Composable
 
+@Composable
 fun getPermissionLocation(context: Context):Boolean {
-    return ActivityCompat.checkSelfPermission(context,
+
+    if(ActivityCompat.checkSelfPermission(context,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
+            ) == PackageManager.PERMISSION_GRANTED){
+        return true
+    }
+    else{
+        return getPermission()
+    }
+}
+
+@Composable
+fun getPermission():Boolean{
+    var isPermission= false
+    val permissionlauncer=rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()){permissions->
+        when{
+            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)->{
+                isPermission=true
+                return@rememberLauncherForActivityResult
+            }
+            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)->{
+                isPermission=true
+                return@rememberLauncherForActivityResult
+            }
+            else->{
+                return@rememberLauncherForActivityResult
+            }
+        }
+
+    }
+    SideEffect {
+            permissionlauncer.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            ))
+        }
+    return isPermission
 }

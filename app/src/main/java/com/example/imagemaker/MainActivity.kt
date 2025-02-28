@@ -33,7 +33,9 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.imagemaker.ui.theme.ImageMakerTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
 
@@ -62,7 +64,10 @@ class MainActivity : ComponentActivity() {
             if (settings.uri != null) {
                 imageUriPodpis = settings.uri
             }
-            if (getPermissionLocation(this)){
+
+
+
+            if (getPermissionLocation(applicationContext)){
               locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             if (locationManager?.isLocationEnabled == true){
                 gpsLocationListener = object : LocationListener {
@@ -80,8 +85,6 @@ class MainActivity : ComponentActivity() {
                     override fun onProviderEnabled(provider: String) {}
                     override fun onProviderDisabled(provider: String) {}
                 }
-
-
                 if (gpsLocationListener != null) {
                     locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                         5000, 10f,  gpsLocationListener!!)
@@ -96,7 +99,11 @@ class MainActivity : ComponentActivity() {
             }
             }
             else{
-                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION))
+                LaunchedEffect(scope){
+                    launch {
+                        snackBarHostState?.showSnackbar(applicationContext.resources.getString(R.string.PermissionLocation))
+                    }
+                }
             }
             ImageMakerTheme {
                 // A surface container using the 'background' color from the theme

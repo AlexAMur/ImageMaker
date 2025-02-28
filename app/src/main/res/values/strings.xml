@@ -7,4 +7,5 @@
     <string name="saveMassage">Изображение сохранено в </string>
     <string name="FileNotFound">Не удалось открыть файл. </string>
     <string name="EnableLocation">Включите геолокацию в настройках для определения магазина.</string>
+    <string name="PermissionLocation">Для определения магазина приложению требуются права на доступ к геолокации.</string>
 </resources>
