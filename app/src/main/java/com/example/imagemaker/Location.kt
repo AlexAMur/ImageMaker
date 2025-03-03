@@ -47,19 +47,26 @@ fun getPermission():Boolean{
     var isPermission= false
     val permissionlauncer=rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()){permissions->
-        when{
-            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)->{
-                isPermission=true
-                return@rememberLauncherForActivityResult
-            }
-            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)->{
-                isPermission=true
-                return@rememberLauncherForActivityResult
-            }
-            else->{
-                return@rememberLauncherForActivityResult
-            }
+        val granted =permissions.values.reduce{acc, next->(acc && next)}
+        if(granted){
+            isPermission = true
         }
+        else{
+            isPermission =false
+        }
+//        when{
+//            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)->{
+//                isPermission=true
+//                return@rememberLauncherForActivityResult
+//            }
+//            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)->{
+//                isPermission=true
+//                return@rememberLauncherForActivityResult
+//            }
+//            else->{
+//                return@rememberLauncherForActivityResult
+//            }
+//        }
 
     }
     SideEffect {

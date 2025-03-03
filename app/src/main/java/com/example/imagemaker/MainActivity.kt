@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
     var snackBarHostState: SnackbarHostState? = null
     var coordinate: MutableState<Coordinate>? = null
     var gpsLocationListener: LocationListener? = null
-    var  locationManager: LocationManager? =null
+
 
 
     @SuppressLint("SuspiciousIndentation", "MissingPermission")
@@ -66,47 +66,51 @@ class MainActivity : ComponentActivity() {
             }
 
 
+            ImageMakerTheme {
+                if (getPermission()){
 
-            if (getPermissionLocation(applicationContext)){
-              locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            if (locationManager?.isLocationEnabled == true){
-                gpsLocationListener = object : LocationListener {
-                    override fun onLocationChanged(location: Location) {
-                        val tmpCoordinate = Coordinate(
-                            longitude = location.longitude,
-                            latitude = location.latitude
-                        )
-                        Log.e("ImageMLocation", "Определение координат!!!")
-                        coordinate?.value = tmpCoordinate
-                        val market =(application as MyApplication).listMarket
-                        mailTo = selectMailMarket(market!!, coordinate?.value!!)//Pair(30.35687977917871,59.932240884442095))
-                    }
-                    override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-                    override fun onProviderEnabled(provider: String) {}
-                    override fun onProviderDisabled(provider: String) {}
-                }
-                if (gpsLocationListener != null) {
-                    locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                        5000, 10f,  gpsLocationListener!!)
-                }
-            }
-            else{
-                  LaunchedEffect(scope){
-                        launch {
-                        snackBarHostState?.showSnackbar(applicationContext.resources.getString(R.string.EnableLocation))
+                    if (app.locationManager?.isLocationEnabled == true){
+                        gpsLocationListener = object : LocationListener {
+                            override fun onLocationChanged(location: Location) {
+                                val tmpCoordinate = Coordinate(
+                                    longitude = location.longitude,
+                                    latitude = location.latitude
+                                )
+                                Log.e("ImageMLocation", "Определение координат!!!")
+                                coordinate?.value = tmpCoordinate
+                                val market =(application as MyApplication).listMarket
+                                mailTo = selectMailMarket(market!!, coordinate?.value!!)//Pair(30.35687977917871,59.932240884442095))
+                            }
+                            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+                            override fun onProviderEnabled(provider: String) {}
+                            override fun onProviderDisabled(provider: String) {}
+                        }
+                        if (gpsLocationListener != null) {
+                            app.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                                5000, 10f,  gpsLocationListener!!)
                         }
                     }
-            }
-            }
-            else{
-                LaunchedEffect(scope){
-                    launch {
-                        snackBarHostState?.showSnackbar(applicationContext.resources.getString(R.string.PermissionLocation))
+                    else{
+                        LaunchedEffect(scope){
+                            launch {
+                                snackBarHostState?.showSnackbar(applicationContext.resources.getString(R.string.EnableLocation))
+                            }
+                        }
                     }
                 }
-            }
-            ImageMakerTheme {
-                // A surface container using the 'background' color from the theme
+                else {
+                    LaunchedEffect(scope) {
+                        launch {
+                            snackBarHostState?.showSnackbar(applicationContext.resources.getString(R.string.PermissionLocation))
+                        }
+                    }
+                }
+
+
+
+
+
+                    // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
