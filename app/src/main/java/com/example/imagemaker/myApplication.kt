@@ -1,11 +1,15 @@
 package com.example.imagemaker
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.Uri
 import android.util.Log
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.MutableState
+import androidx.core.content.ContextCompat
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -15,23 +19,20 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import java.lang.NullPointerException
+import java.security.Permission
 
 val Context.dataStore  by preferencesDataStore(name = "settings")
 class MyApplication: Application() {
     var settings: Settings?  = Settings()
     var  locationManager: LocationManager? =null
     var listMarket: Array<Market>? = null // by remember { mutableStateOf<Array<Market>>(emptyArray()) }//
+
     override fun onCreate() {
         super.onCreate()
         //получаем настройки
             runBlocking {// CoroutineScope(Dispatchers.IO).launch {
                 settings = getSettings(applicationContext.dataStore)
             }
-//----------------получене координат------------------------------------------------------------
-        locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
-
-//
        listMarket = createArrayMarket( readJsonFile(applicationContext, "magazin.json"))
     }
 private suspend fun  getSettings(context: DataStore<Preferences>):Settings{

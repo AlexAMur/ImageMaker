@@ -3,6 +3,7 @@ package com.example.imagemaker
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -11,8 +12,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
@@ -28,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.imagemaker.ui.theme.ImageMakerTheme
@@ -53,6 +57,26 @@ class MainActivity : ComponentActivity() {
         val app = (application as MyApplication)
         settings = app.settings ?: Settings()
 
+        val requestPermissionLauncher =
+            registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ){ isGranted: Boolean ->
+        if (isGranted) {
+            app.locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        } else {
+           Toast.makeText(this,"НЕт", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    when{ ContextCompat.checkSelfPermission(
+        applicationContext,android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED->{
+    }
+        else->{
+             requestPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+    }
+
         setContent {
 
             scope = rememberCoroutineScope()
@@ -67,44 +91,44 @@ class MainActivity : ComponentActivity() {
 
 
             ImageMakerTheme {
-                if (getPermission()){
-
-                    if (app.locationManager?.isLocationEnabled == true){
-                        gpsLocationListener = object : LocationListener {
-                            override fun onLocationChanged(location: Location) {
-                                val tmpCoordinate = Coordinate(
-                                    longitude = location.longitude,
-                                    latitude = location.latitude
-                                )
-                                Log.e("ImageMLocation", "Определение координат!!!")
-                                coordinate?.value = tmpCoordinate
-                                val market =(application as MyApplication).listMarket
-                                mailTo = selectMailMarket(market!!, coordinate?.value!!)//Pair(30.35687977917871,59.932240884442095))
-                            }
-                            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-                            override fun onProviderEnabled(provider: String) {}
-                            override fun onProviderDisabled(provider: String) {}
-                        }
-                        if (gpsLocationListener != null) {
-                            app.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                                5000, 10f,  gpsLocationListener!!)
-                        }
-                    }
-                    else{
-                        LaunchedEffect(scope){
-                            launch {
-                                snackBarHostState?.showSnackbar(applicationContext.resources.getString(R.string.EnableLocation))
-                            }
-                        }
-                    }
-                }
-                else {
-                    LaunchedEffect(scope) {
-                        launch {
-                            snackBarHostState?.showSnackbar(applicationContext.resources.getString(R.string.PermissionLocation))
-                        }
-                    }
-                }
+//                if (getPermission()){
+//
+//                    if (app.locationManager?.isLocationEnabled == true){
+//                        gpsLocationListener = object : LocationListener {
+//                            override fun onLocationChanged(location: Location) {
+//                                val tmpCoordinate = Coordinate(
+//                                    longitude = location.longitude,
+//                                    latitude = location.latitude
+//                                )
+//                                Log.e("ImageMLocation", "Определение координат!!!")
+//                                coordinate?.value = tmpCoordinate
+//                                val market =(application as MyApplication).listMarket
+//                                mailTo = selectMailMarket(market!!, coordinate?.value!!)//Pair(30.35687977917871,59.932240884442095))
+//                            }
+//                            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+//                            override fun onProviderEnabled(provider: String) {}
+//                            override fun onProviderDisabled(provider: String) {}
+//                        }
+//                        if (gpsLocationListener != null) {
+//                            app.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+//                                5000, 10f,  gpsLocationListener!!)
+//                        }
+//                    }
+//                    else{
+//                        LaunchedEffect(scope){
+//                            launch {
+//                                snackBarHostState?.showSnackbar(applicationContext.resources.getString(R.string.EnableLocation))
+//                            }
+//                        }
+//                    }
+//                }
+//                else {
+//                    LaunchedEffect(scope) {
+//                        launch {
+//                            snackBarHostState?.showSnackbar(applicationContext.resources.getString(R.string.PermissionLocation))
+//                        }
+//                    }
+//                }
 
 
 
