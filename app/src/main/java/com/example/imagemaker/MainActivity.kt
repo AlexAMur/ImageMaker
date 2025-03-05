@@ -22,7 +22,6 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,16 +29,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.imagemaker.ui.theme.ImageMakerTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
 
@@ -48,28 +44,76 @@ class MainActivity : ComponentActivity() {
     var snackBarHostState: SnackbarHostState? = null
     var coordinate: MutableState<Coordinate>? = null
     var gpsLocationListener: LocationListener? = null
-
-
+    var mailTo: MutableState<String>?= mutableStateOf("")
+    private var app : MyApplication? =null
 
     @SuppressLint("SuspiciousIndentation", "MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val app = (application as MyApplication)
-        settings = app.settings ?: Settings()
+         app = (application as MyApplication)
+        settings = app?.settings ?: Settings()
 
         val requestPermissionLauncher =
             registerForActivityResult(
                 ActivityResultContracts.RequestPermission()
             ){ isGranted: Boolean ->
         if (isGranted) {
-            app.locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            app?.locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            gpsLocationListener = object : LocationListener {
+                            override fun onLocationChanged(location: Location) {
+                                val tmpCoordinate = Coordinate(
+                                    longitude = location.longitude,
+                                    latitude = location.latitude
+                                )
+                                Log.e("ImageMLocation", "Определение координат!!!")
+                                coordinate?.value = tmpCoordinate
+                                val market =(application as MyApplication).listMarket
+                                 mailTo?.value =
+                                    selectMailMarket(
+                                        market!!,
+                                        coordinate?.value!!
+                                    )//Pair(30.35687977917871,59.932240884442095))
+                            }
+                            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+                            override fun onProviderEnabled(provider: String) {}
+                            override fun onProviderDisabled(provider: String) {}
+                        }
+                        if (gpsLocationListener != null) {
+                            app?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                                5000, 10f,  gpsLocationListener!!)
+                        }
         } else {
-           Toast.makeText(this,"НЕт", Toast.LENGTH_LONG).show()
+           Toast.makeText(this,application.getString(R.string.PermissionLocation), Toast.LENGTH_LONG).show()
         }
     }
 
     when{ ContextCompat.checkSelfPermission(
         applicationContext,android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED->{
+        app?.locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        gpsLocationListener = object : LocationListener {
+            override fun onLocationChanged(location: Location) {
+                val tmpCoordinate = Coordinate(
+                    longitude = location.longitude,
+                    latitude = location.latitude
+                )
+                Log.e("ImageMLocation", "Определение координат!!!")
+                coordinate?.value = tmpCoordinate
+                val market =(application as MyApplication).listMarket
+                 mailTo?.value =
+                    selectMailMarket(
+                        market!!,
+                        coordinate?.value!!
+                    )//Pair(30.35687977917871,59.932240884442095))
+            }
+            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderDisabled(provider: String) {}
+        }
+        if (gpsLocationListener != null) {
+            app?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                5000, 10f,  gpsLocationListener!!)
+        }
+
     }
         else->{
              requestPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -78,11 +122,33 @@ class MainActivity : ComponentActivity() {
     }
 
         setContent {
-
+      /*      gpsLocationListener = object : LocationListener {
+                override fun onLocationChanged(location: Location) {
+                    val tmpCoordinate = Coordinate(
+                        longitude = location.longitude,
+                        latitude = location.latitude
+                    )
+                    Log.e("ImageMLocation", "Определение координат!!!")
+                    coordinate?.value = tmpCoordinate
+                    val market =(application as MyApplication).listMarket
+                 /*   var mailTo =
+                        selectMailMarket(
+                            market!!,
+                            coordinate?.value!!
+                        )//Pair(30.35687977917871,59.932240884442095))*/
+                }
+                override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+                override fun onProviderEnabled(provider: String) {}
+                override fun onProviderDisabled(provider: String) {}
+            }*/
+            if (gpsLocationListener != null) {
+                app?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    5000, 10f,  gpsLocationListener!!)
+            }
             scope = rememberCoroutineScope()
             snackBarHostState = remember { SnackbarHostState() }
             coordinate = remember { mutableStateOf(Coordinate()) }
-            var mailTo  by remember { mutableStateOf("")  }
+          //  var mailTo  by remember { mutableStateOf("")  }
             var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
             var mainUri: Uri? = null
             if (settings.uri != null) {
@@ -165,7 +231,7 @@ class MainActivity : ComponentActivity() {
                                         settings,
                                         scope,
                                         snackBarHostState!!,
-                                        mailTo
+                                        mailTo?.value?:"test1"
                                     )
                                 }
                             } else {
@@ -183,7 +249,7 @@ class MainActivity : ComponentActivity() {
                                 settings,
                                 scope,
                                 snackBarHostState!!,
-                                mailTo
+                                mailTo?.value?:"test2"
                             )
                         }
 
@@ -211,12 +277,18 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-
+        if (gpsLocationListener != null) {
+            app?.locationManager?.removeUpdates(gpsLocationListener!!)
+        }
     }
 
+    @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
-      //  getLocation(this, scope, snackBarHostState, coordinate, gpsLocationListener)
+        if (gpsLocationListener != null) {
+            app?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                5000, 10f,  gpsLocationListener!!)
+        }
     }
 }
 suspend fun saveSettings(context: Context, settings: Settings) {
