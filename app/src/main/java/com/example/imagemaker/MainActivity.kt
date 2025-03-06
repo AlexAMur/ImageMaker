@@ -103,7 +103,7 @@ class MainActivity : ComponentActivity() {
                     selectMailMarket(
                         market!!,
                         coordinate?.value!!
-                    )//Pair(30.35687977917871,59.932240884442095))
+                    )
             }
             override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
             override fun onProviderEnabled(provider: String) {}
@@ -113,38 +113,18 @@ class MainActivity : ComponentActivity() {
             app?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 5000, 10f,  gpsLocationListener!!)
         }
-
     }
-        else->{
+    else->{
              requestPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
-        }
+     }
 
     }
 
         setContent {
-      /*      gpsLocationListener = object : LocationListener {
-                override fun onLocationChanged(location: Location) {
-                    val tmpCoordinate = Coordinate(
-                        longitude = location.longitude,
-                        latitude = location.latitude
-                    )
-                    Log.e("ImageMLocation", "Определение координат!!!")
-                    coordinate?.value = tmpCoordinate
-                    val market =(application as MyApplication).listMarket
-                 /*   var mailTo =
-                        selectMailMarket(
-                            market!!,
-                            coordinate?.value!!
-                        )//Pair(30.35687977917871,59.932240884442095))*/
-                }
-                override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-                override fun onProviderEnabled(provider: String) {}
-                override fun onProviderDisabled(provider: String) {}
-            }*/
-            if (gpsLocationListener != null) {
-                app?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                    5000, 10f,  gpsLocationListener!!)
-            }
+//            if (gpsLocationListener != null) {
+//                app?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+//                    5000, 10f,  gpsLocationListener!!)
+//            }
             scope = rememberCoroutineScope()
             snackBarHostState = remember { SnackbarHostState() }
             coordinate = remember { mutableStateOf(Coordinate()) }
@@ -157,55 +137,12 @@ class MainActivity : ComponentActivity() {
 
 
             ImageMakerTheme {
-//                if (getPermission()){
-//
-//                    if (app.locationManager?.isLocationEnabled == true){
-//                        gpsLocationListener = object : LocationListener {
-//                            override fun onLocationChanged(location: Location) {
-//                                val tmpCoordinate = Coordinate(
-//                                    longitude = location.longitude,
-//                                    latitude = location.latitude
-//                                )
-//                                Log.e("ImageMLocation", "Определение координат!!!")
-//                                coordinate?.value = tmpCoordinate
-//                                val market =(application as MyApplication).listMarket
-//                                mailTo = selectMailMarket(market!!, coordinate?.value!!)//Pair(30.35687977917871,59.932240884442095))
-//                            }
-//                            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-//                            override fun onProviderEnabled(provider: String) {}
-//                            override fun onProviderDisabled(provider: String) {}
-//                        }
-//                        if (gpsLocationListener != null) {
-//                            app.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-//                                5000, 10f,  gpsLocationListener!!)
-//                        }
-//                    }
-//                    else{
-//                        LaunchedEffect(scope){
-//                            launch {
-//                                snackBarHostState?.showSnackbar(applicationContext.resources.getString(R.string.EnableLocation))
-//                            }
-//                        }
-//                    }
-//                }
-//                else {
-//                    LaunchedEffect(scope) {
-//                        launch {
-//                            snackBarHostState?.showSnackbar(applicationContext.resources.getString(R.string.PermissionLocation))
-//                        }
-//                    }
-//                }
-
-
-
-
-
                     // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val intent = intent
+                    //val intent = intent
 
                     when {
                         intent?.action == Intent.ACTION_SEND -> {
