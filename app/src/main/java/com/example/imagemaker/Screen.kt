@@ -48,6 +48,7 @@ fun GetContentExample(
     snackBarHostState: SnackbarHostState,
     mailTo: String
 ) {
+
     //val coordinate = remember { mutableStateOf(Coordinate()) }
     var imageUriPodpis by remember { mutableStateOf<Uri?>(UriPodpis) }
     var fileName:String? = null
@@ -59,7 +60,7 @@ fun GetContentExample(
     var editImage by remember { mutableStateOf<Boolean>(value = false) }
     var bitmapPodpis = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
     var mbitmap = bitmapPodpis.copy(Bitmap.Config.ARGB_8888, true)
-  // val launcerStoragePermission = registerForA
+
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { it ->
             imageUriPodpis = it.data?.data
@@ -101,9 +102,24 @@ fun GetContentExample(
                 fileName = fileNameFromUri(uri)
             }
         }
+
+
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }){
         Column {
-           Text("mailTo: $mailTo", modifier = Modifier.fillMaxWidth().padding(10.dp,5.dp,5.dp,10.dp))
+
+       /*     if (isGooglePlayServicesAvailable(context)==SERVICE_INVALID) {
+                LaunchedEffect(scope) {
+                    snackbarHostState.showSnackbar("Google play service не поддерживаются!")
+                }
+            }*/
+
+          //  getLocation(context,scope, snackBarHostState,coordinate)
+
+             //aaa listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
+            // mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
+            //Text("Координаты Д: ${coordinate.value.longitude} Ш: ${coordinate.value.latitude}")
+            Text("mailTo: $mailTo", modifier = Modifier.fillMaxWidth().padding(10.dp,5.dp,5.dp,10.dp))
+
             Row(Modifier.fillMaxWidth().padding(10.dp), horizontalArrangement = Arrangement.SpaceAround) {
                 Button(onClick = { launcher_main.launch(context.resources.getString(R.string.MIME_jpeg)) }) {
                     Text(text = "Выбрать акт")
@@ -112,10 +128,20 @@ fun GetContentExample(
                 Button(onClick = { selectImage(launcher) }) {
                     Text(text = "Подписать")
                 }
+//                Button(onClick = {
+//                        //протестить координаты
+//                        val listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
+//                        val mailTo = selectMailMarket(listMarket,coordinate.value)
+//                }) {
+//                    Icon(Icons.Filled.Share, contentDescription = "Поделиться")
+//                }
+
 
             }
             if (imageUri_main != null) {
                 val inputstrim = context.contentResolver.openInputStream(imageUri_main!!)
+                //launcher_Pod.launch("image/*")
+                //  val istrimPod = context.contentResolver.openInputStream(imageUri_Pod!!)
                 val bitmap = BitmapFactory.decodeStream(inputstrim)
                 mbitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
                 if (imageUriPodpis != null) {
@@ -127,12 +153,15 @@ fun GetContentExample(
                             context,
                             Manifest.permission.READ_EXTERNAL_STORAGE
                         ) -> {
+                            // CoroutineScope(Dispatchers.IO).launch {
                             bitmapPodpis = getImage(context, imageUriPodpis!!)
+                            //   }
+                            //Log.d("ExampleScreen","Code requires permission")
                         }
 
                         else -> {
                             // Asking for permission
-                         //   requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                            //requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
                         }
                     }
                     val screenSize = getScreenSize(context)
@@ -164,8 +193,12 @@ fun GetContentExample(
                         Button(modifier = Modifier.padding(start = 20.dp, end = 10.dp), onClick = {
                             val uri = saveBitmap(context, mbitmap, fileName)
                             if (uri != null) {
+                                //протестить координаты
+                               // val listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
+                                //val mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
                                 sendBitmap(context, uri, mailTo)
                             }
+
                         }) {
                             Icon(Icons.Filled.Share, contentDescription = "Поделиться")
                         }

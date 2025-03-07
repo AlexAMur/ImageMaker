@@ -1,10 +1,19 @@
 package com.example.imagemaker
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.Composable
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.io.File
 import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.InputStream
 import kotlin.math.cos
 import kotlin.math.sqrt
 
@@ -46,4 +55,44 @@ fun selectMailMarket(arrayMarket: Array<Market>,coordinates:Coordinate  ):String
             return arrayMarket[i].mailTo
     }
     return "@krasnoe-beloe.ru"
+}
+
+
+@Composable
+fun loadMarket(context: Context){
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { it ->
+           val uri = it.data?.data
+            var streamInput: InputStream? = null
+            var streamOut: FileOutputStream? = null
+            if (uri != null) {
+                try {
+                    val contentResolver = context.contentResolver
+                     streamInput = contentResolver.openInputStream(uri)
+                     val file = File(context.filesDir,context.getString(R.string.fileName))
+                     streamOut= file.outputStream()
+                    val buffer = ByteArray(1024)
+                    var length: Int
+
+                    while (streamInput!!.read(buffer).also { length = it } > 0)
+                    {
+                        streamOut.write(buffer, 0, length)
+
+                    }
+
+                }
+                catch (error: FileNotFoundException){
+                        Toast.makeText(context,
+                            context.resources.getString(R.string.FileError),
+                            Toast.LENGTH_LONG).show()
+                }
+                finally {
+                    streamInput?.close()
+                    streamOut?.close()
+                }
+
+
+            }
+
+        }
 }
