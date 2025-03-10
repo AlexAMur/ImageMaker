@@ -121,6 +121,9 @@ fun GetContentExample(
             Text("mailTo: $mailTo", modifier = Modifier.fillMaxWidth().padding(10.dp,5.dp,5.dp,10.dp))
 
             Row(Modifier.fillMaxWidth().padding(10.dp), horizontalArrangement = Arrangement.SpaceAround) {
+                Button(onClick = { loadMarket(context)}) {
+                    Text(text = "Загузить магазины")
+                }
                 Button(onClick = { launcher_main.launch(context.resources.getString(R.string.MIME_jpeg)) }) {
                     Text(text = "Выбрать акт")
                 }

@@ -1,8 +1,6 @@
 package com.example.imagemaker
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -58,8 +56,9 @@ fun selectMailMarket(arrayMarket: Array<Market>,coordinates:Coordinate  ):String
 }
 
 
-@Composable
+
 fun loadMarket(context: Context){
+
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { it ->
            val uri = it.data?.data
