@@ -1,11 +1,14 @@
 package com.example.imagemaker
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.ComposeView
+import androidx.core.content.ContentProviderCompat.requireContext
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -56,12 +59,10 @@ fun selectMailMarket(arrayMarket: Array<Market>,coordinates:Coordinate  ):String
 }
 
 
-
+@Composable
 fun loadMarket(context: Context){
-
     val launcher =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { it ->
-           val uri = it.data?.data
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             var streamInput: InputStream? = null
             var streamOut: FileOutputStream? = null
             if (uri != null) {
@@ -94,4 +95,6 @@ fun loadMarket(context: Context){
             }
 
         }
+    launcher.launch("")
+
 }
