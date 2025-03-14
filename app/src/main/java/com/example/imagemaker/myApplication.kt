@@ -26,7 +26,9 @@ class MyApplication: Application() {
             runBlocking {// CoroutineScope(Dispatchers.IO).launch {
                 settings = getSettings(applicationContext.dataStore)
             }
-       listMarket = createArrayMarket( readJsonFile(applicationContext, getString(R.string.fileName)))
+        val stringJson =readJsonFile(applicationContext, getString(R.string.fileName))
+        if (stringJson != null)
+            listMarket = createArrayMarket( stringJson)
        locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     }
 private suspend fun  getSettings(context: DataStore<Preferences>):Settings{

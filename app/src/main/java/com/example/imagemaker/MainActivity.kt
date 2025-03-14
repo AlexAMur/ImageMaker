@@ -108,7 +108,7 @@ class MainActivity : ComponentActivity() {
                 val market =(application as MyApplication).listMarket
                  mailTo?.value =
                     selectMailMarket(
-                        market!!,
+                        market,
                         coordinate?.value!!
                     )//Pair(30.35687977917871,59.932240884442095))
             }

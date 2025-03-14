@@ -121,9 +121,9 @@ fun GetContentExample(
                 try {
                     val contentResolver = context.contentResolver
                     streamInput = contentResolver.openInputStream(uri)
-                    val file= context.assets.open(context.getString(R.string.fileName),)
-                    //val file = File(context.assets,context.getString(R.string.fileName))
-                    streamOut=
+
+                    val file = File(context.filesDir,context.getString(R.string.fileName))
+                    streamOut=file.outputStream()
                     val buffer = ByteArray(1024)
                     var length: Int
 
