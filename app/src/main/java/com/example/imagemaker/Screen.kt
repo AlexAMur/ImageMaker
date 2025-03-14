@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -43,6 +44,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.KeyEventDispatcher.Component
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.InputStream
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -108,6 +113,45 @@ fun GetContentExample(
         }
 
 
+    val launcher_l =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            var streamInput: InputStream? = null
+            var streamOut: FileOutputStream? = null
+            if (uri != null) {
+                try {
+                    val contentResolver = context.contentResolver
+                    streamInput = contentResolver.openInputStream(uri)
+                    val file= context.assets.open(context.getString(R.string.fileName),)
+                    //val file = File(context.assets,context.getString(R.string.fileName))
+                    streamOut=
+                    val buffer = ByteArray(1024)
+                    var length: Int
+
+                    while (streamInput!!.read(buffer).also { length = it } > 0)
+                    {
+                        streamOut.write(buffer, 0, length)
+
+                    }
+
+                }
+                catch (error: FileNotFoundException){
+                    Toast.makeText(context,
+                        context.resources.getString(R.string.FileError),
+                        Toast.LENGTH_LONG).show()
+                }
+                finally {
+                    streamInput?.close()
+                    streamOut?.close()
+                }
+
+
+            }
+
+        }
+  //+++++++++++++++++++++++++++++++++++++++
+
+
+
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }){
         Column {
 
@@ -126,10 +170,10 @@ fun GetContentExample(
 
             Row(Modifier.fillMaxWidth().padding(10.dp), horizontalArrangement = Arrangement.SpaceAround) {
                 Button(onClick = {
-                    (context as ComponentActivity).setContent{
-                    loadMarket(context)
-                    }
-                }) {
+
+                       launcher_l.launch(context.resources.getString(R.string.MIME_File))
+
+                   }) {
                     Text(text = "Загузить магазины")
                 }
                 Button(onClick = { launcher_main.launch(context.resources.getString(R.string.MIME_jpeg)) }) {

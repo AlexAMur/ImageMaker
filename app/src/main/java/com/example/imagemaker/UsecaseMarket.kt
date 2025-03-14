@@ -4,9 +4,11 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContentProviderCompat.requireContext
 import com.google.gson.Gson
@@ -59,42 +61,3 @@ fun selectMailMarket(arrayMarket: Array<Market>,coordinates:Coordinate  ):String
 }
 
 
-@Composable
-fun loadMarket(context: Context){
-    val launcher =
-        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            var streamInput: InputStream? = null
-            var streamOut: FileOutputStream? = null
-            if (uri != null) {
-                try {
-                    val contentResolver = context.contentResolver
-                     streamInput = contentResolver.openInputStream(uri)
-                     val file = File(context.filesDir,context.getString(R.string.fileName))
-                     streamOut= file.outputStream()
-                    val buffer = ByteArray(1024)
-                    var length: Int
-
-                    while (streamInput!!.read(buffer).also { length = it } > 0)
-                    {
-                        streamOut.write(buffer, 0, length)
-
-                    }
-
-                }
-                catch (error: FileNotFoundException){
-                        Toast.makeText(context,
-                            context.resources.getString(R.string.FileError),
-                            Toast.LENGTH_LONG).show()
-                }
-                finally {
-                    streamInput?.close()
-                    streamOut?.close()
-                }
-
-
-            }
-
-        }
-    launcher.launch("")
-
-}
