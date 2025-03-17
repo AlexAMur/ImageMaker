@@ -48,6 +48,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.nio.charset.Charset
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -114,7 +115,7 @@ fun GetContentExample(
 
 
     val launcher_l =
-        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()){ uri: Uri? ->
             var streamInput: InputStream? = null
             var streamOut: FileOutputStream? = null
             if (uri != null) {
@@ -123,17 +124,20 @@ fun GetContentExample(
                     streamInput = contentResolver.openInputStream(uri)
 
                     val file = File(context.filesDir,context.getString(R.string.fileName))
+
                     streamOut=file.outputStream()
                     val buffer = ByteArray(1024)
                     var length: Int
+                    var str =""
 
                     while (streamInput!!.read(buffer).also { length = it } > 0)
                     {
-                        streamOut.write(buffer, 0, length)
 
+                      streamOut.write(buffer, 0, length)
                     }
-
-                }
+                    (context.applicationContext as MyApplication).listMarket = createArrayMarket(str)
+                    //streamOut.write(str.toByteArray(Charset.defaultCharset()),0,str.length)
+                                        }
                 catch (error: FileNotFoundException){
                     Toast.makeText(context,
                         context.resources.getString(R.string.FileError),
@@ -167,11 +171,10 @@ fun GetContentExample(
             // mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
             //Text("Координаты Д: ${coordinate.value.longitude} Ш: ${coordinate.value.latitude}")
             Text("mailTo: $mailTo", modifier = Modifier.fillMaxWidth().padding(10.dp,5.dp,5.dp,10.dp))
-
             Row(Modifier.fillMaxWidth().padding(10.dp), horizontalArrangement = Arrangement.SpaceAround) {
                 Button(onClick = {
 
-                       launcher_l.launch(context.resources.getString(R.string.MIME_File))
+                       launcher_l.launch(context.resources.getString(R.string.MIME_Json))
 
                    }) {
                     Text(text = "Загузить магазины")

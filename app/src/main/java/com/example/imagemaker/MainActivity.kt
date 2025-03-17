@@ -36,7 +36,10 @@ import com.example.imagemaker.ui.theme.ImageMakerTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
+//1Подключить запрос на доступ к хранилищу
+//2обработка запроса подписи
+//3переделать интерфейс
+//4 вывести инфу об удачной загрузке магазинов
 class MainActivity : ComponentActivity() {
 
     var settings: Settings = Settings()

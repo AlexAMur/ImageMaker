@@ -3,12 +3,14 @@
     <string name="MIME_jpeg">image/jpeg</string>
     <string name="MIME_png">image/png</string>
     <string name="MIME_all">image/*</string>
-    <string name="MIME_File">*/*</string>
+    <string name="MIME_Json">application/json</string>
     <string name="fileName">magazin.json</string>
     <string name="not_support_format">Не поддерживаемый формат данных. </string>
     <string name="saveMassage">Изображение сохранено в </string>
     <string name="FileNotFound">Не удалось открыть файл. </string>
+    <string name="ErrorFileRead">Не удалось прочитать файл. </string>
     <string name="FileError">Не удалось записать данные в файл. </string>
+    <string name="OutOfMemory">Превышен объем доступной памяти. </string>
     <string name="EnableLocation">Включите геолокацию в настройках для определения магазина.</string>
     <string name="PermissionLocation">Для определения магазина приложению требуются права на доступ к геолокации.</string>
 </resources>

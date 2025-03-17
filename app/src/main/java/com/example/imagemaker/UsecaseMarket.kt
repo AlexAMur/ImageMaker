@@ -16,6 +16,7 @@ import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStream
 import kotlin.math.cos
 import kotlin.math.sqrt
@@ -27,20 +28,33 @@ const val gradus_meridian=111134.861111
 
 fun readJsonFile(context: Context,fileName:String):String? {
     try {
-        return File(context.filesDir,fileName)
-            .bufferedReader().use {
+        val file = File(context.filesDir,fileName)
+
+          file.bufferedReader().use {
                 it.readText()
             }
     }catch (e:FileNotFoundException){
         Log.e("IM",context.resources.getString(R.string.FileNotFound)+" $fileName")
+        Toast.makeText(context,"Не удалось загрузить список магазинов.\n"+context.resources.getString(R.string.FileNotFound),Toast.LENGTH_LONG).show()
+    }
+    catch (e: IOException){
+        Log.e("IM",context.resources.getString(R.string.ErrorFileRead))
+        Toast.makeText(context,"Не удалось загрузить список магазинов.\n"+context.resources.getString(R.string.ErrorFileRead),Toast.LENGTH_LONG).show()
+    }
+    catch (e: OutOfMemoryError){
+        Log.e("IM",context.resources.getString(R.string.OutOfMemory))
+        Toast.makeText(context,"Не удалось загрузить список магазинов.\n"+context.resources.getString(R.string.OutOfMemory),Toast.LENGTH_LONG).show()
     }
     return null
 }
 fun createArrayMarket( stringJson: String):Array<Market>{
+    if (stringJson != ""){
     val gson = Gson()
     val marketListType = object : TypeToken<Array<Market>>() {}.type
     val listMarket:Array<Market> =gson.fromJson(stringJson, marketListType)
     return listMarket
+    }
+    else return emptyArray()
 }
 fun selectMailMarket(arrayMarket: Array<Market>?,coordinates:Coordinate  ):String{
     if (arrayMarket!= null){
