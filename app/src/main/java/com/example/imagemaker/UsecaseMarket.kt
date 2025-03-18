@@ -1,5 +1,6 @@
 package com.example.imagemaker
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.util.Log
@@ -26,16 +27,18 @@ const val PI = 3.141592653589793
 const val gradus_paralel= 111321.377778
 const val gradus_meridian=111134.861111
 
-fun readJsonFile(context: Context,fileName:String):String? {
+@SuppressLint("SuspiciousIndentation")
+fun readJsonFile(context: Context, fileName:String):String? {
     try {
-        val file = File(context.filesDir,fileName)
 
-          file.bufferedReader().use {
+        val file = File(context.filesDir,fileName)
+          return  file.bufferedReader().use {
                 it.readText()
             }
     }catch (e:FileNotFoundException){
         Log.e("IM",context.resources.getString(R.string.FileNotFound)+" $fileName")
-        Toast.makeText(context,"Не удалось загрузить список магазинов.\n"+context.resources.getString(R.string.FileNotFound),Toast.LENGTH_LONG).show()
+        Toast.makeText(context,"Не удалось загрузить список магазинов.\n"+
+                context.resources.getString(R.string.FileNotFound),Toast.LENGTH_LONG).show()
     }
     catch (e: IOException){
         Log.e("IM",context.resources.getString(R.string.ErrorFileRead))
@@ -57,7 +60,7 @@ fun createArrayMarket( stringJson: String):Array<Market>{
     else return emptyArray()
 }
 fun selectMailMarket(arrayMarket: Array<Market>?,coordinates:Coordinate  ):String{
-    if (arrayMarket!= null){
+    if (arrayMarket!= null && arrayMarket.size !=0){
         var delta = emptyArray<Double>()
         for (i in 0..arrayMarket.size-1){
             var x =((arrayMarket[i].longitude-coordinates.longitude))*

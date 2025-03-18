@@ -5,10 +5,14 @@ import android.content.Context
 import android.location.LocationManager
 import android.net.Uri
 import android.util.Log
+import androidx.annotation.RestrictTo
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
@@ -22,13 +26,20 @@ class MyApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()
+        var stringJson = readJsonFile(applicationContext, getString(R.string.fileName))
+        runBlocking {
+            val task = CoroutineScope(Dispatchers.IO).async {
+
+        }
         //получаем настройки
-            runBlocking {// CoroutineScope(Dispatchers.IO).launch {
+           // CoroutineScope(Dispatchers.IO).launch {
                 settings = getSettings(applicationContext.dataStore)
-            }
-        val stringJson =readJsonFile(applicationContext, getString(R.string.fileName))
-        if (stringJson != null)
-            listMarket = createArrayMarket( stringJson)
+
+
+        //stringJson =task.await()?:""
+        }
+
+       listMarket = createArrayMarket( stringJson?:"")
        locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     }
 private suspend fun  getSettings(context: DataStore<Preferences>):Settings{

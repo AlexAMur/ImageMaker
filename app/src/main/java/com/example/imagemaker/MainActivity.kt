@@ -81,10 +81,11 @@ class MainActivity : ComponentActivity() {
                             override fun onProviderEnabled(provider: String) {}
                             override fun onProviderDisabled(provider: String) {}
                         }
-                        if (gpsLocationListener != null) {
-                            app?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                                5000, 10f,  gpsLocationListener!!)
-                        }
+                        startLocation(applicationContext)
+//                        if (gpsLocationListener != null) {
+//                            app?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+//                                5000, 10f,  gpsLocationListener!!)
+//                        }
         } else {
            Toast.makeText(this,application.getString(R.string.PermissionLocation), Toast.LENGTH_LONG).show()
         }
@@ -120,10 +121,11 @@ class MainActivity : ComponentActivity() {
             override fun onProviderDisabled(provider: String) {}
         }
 
-        if (gpsLocationListener != null) {
-            app?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                5000, 10f,  gpsLocationListener!!)
-        }
+            startLocation(applicationContext)
+//        if (gpsLocationListener != null) {
+//            app?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+//                3000, 10f,  gpsLocationListener!!)
+//        }
 
 
         }
@@ -154,10 +156,11 @@ class MainActivity : ComponentActivity() {
                 override fun onProviderEnabled(provider: String) {}
                 override fun onProviderDisabled(provider: String) {}
             }*/
-            if (gpsLocationListener != null) {
-                app?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                    5000, 10f,  gpsLocationListener!!)
-            }
+            startLocation(applicationContext)
+//            if (gpsLocationListener != null) {
+//                app?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+//                    3000, 10f,  gpsLocationListener!!)
+//            }
             scope = rememberCoroutineScope()
             snackBarHostState = remember { SnackbarHostState() }
             coordinate = remember { mutableStateOf(Coordinate()) }
@@ -298,9 +301,13 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
+       startLocation(applicationContext)
+    }
+    @SuppressLint("MissingPermission")
+    fun startLocation(context: Context){
         if (gpsLocationListener != null) {
-            app?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                5000, 10f,  gpsLocationListener!!)
+            (context.applicationContext as MyApplication)?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                3000, 10f,  gpsLocationListener!!)
         }
     }
 }
@@ -313,5 +320,7 @@ suspend fun saveSettings(context: Context, settings: Settings) {
             it[stringPreferencesKey(Settings::y.name)] = settings.y.toString()
         }
     }
+
+
 }
 
