@@ -279,11 +279,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (settings != (application as MyApplication).settings) {
+
             CoroutineScope(Dispatchers.IO).launch {
                 saveSettings(applicationContext, settings)
             }
-        }
+
     }
 
     override fun onStart() {

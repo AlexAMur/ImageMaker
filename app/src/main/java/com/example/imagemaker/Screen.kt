@@ -14,11 +14,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
@@ -28,6 +31,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,17 +42,14 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.core.view.KeyEventDispatcher.Component
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.InputStream
-import java.nio.charset.Charset
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -128,14 +129,25 @@ fun GetContentExample(
                     streamOut=file.outputStream()
                     val buffer = ByteArray(1024)
                     var length: Int
-                    var str =""
+
 
                     while (streamInput!!.read(buffer).also { length = it } > 0)
                     {
 
                       streamOut.write(buffer, 0, length)
                     }
-                    (context.applicationContext as MyApplication).listMarket = createArrayMarket(str)
+                    var str = readJsonFile(context, context.getString(R.string.fileName))
+                    val listMarket =  createArrayMarket(str?:"")
+                    (context.applicationContext as MyApplication).listMarket=listMarket
+                    (context as MainActivity).coordinate?.value?.let {
+                        (context as MainActivity).mailTo?.value= selectMailMarket(listMarket,
+                            it
+                        )
+                    }
+                    if (listMarket.size > 0)
+                    scope?.launch{
+                        snackBarHostState.showSnackbar(context.getString(R.string.LoadMarket)+" ${listMarket.size}")
+                    }
                     //streamOut.write(str.toByteArray(Charset.defaultCharset()),0,str.length)
                                         }
                 catch (error: FileNotFoundException){
@@ -157,7 +169,8 @@ fun GetContentExample(
 
 
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }){
-        Column {
+        Column(modifier = Modifier.verticalScroll(rememberScrollState())
+                        ) {
 
        /*     if (isGooglePlayServicesAvailable(context)==SERVICE_INVALID) {
                 LaunchedEffect(scope) {
@@ -171,7 +184,7 @@ fun GetContentExample(
             // mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
             //Text("Координаты Д: ${coordinate.value.longitude} Ш: ${coordinate.value.latitude}")
             Text("mailTo: $mailTo", modifier = Modifier.fillMaxWidth().padding(10.dp,5.dp,5.dp,10.dp))
-            Row(Modifier.fillMaxWidth().padding(10.dp), horizontalArrangement = Arrangement.SpaceAround) {
+            Row(Modifier.horizontalScroll(rememberScrollState()).fillMaxWidth().padding(10.dp), horizontalArrangement = Arrangement.SpaceAround) {
                 Button(onClick = {
 
                        launcher_l.launch(context.resources.getString(R.string.MIME_Json))
@@ -239,7 +252,9 @@ fun GetContentExample(
                 }
                 Image(painter = BitmapPainter(mbitmap.asImageBitmap()), contentDescription = "Image")
                 if (editImage) {
-                    Row(Modifier.fillMaxWidth().padding(10.dp), horizontalArrangement = Arrangement.Center) {
+                    Row(Modifier.horizontalScroll(rememberScrollState()).fillMaxWidth().padding(10.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        ) {
                         Button(modifier = Modifier.padding(start = 10.dp, end = 20.dp),onClick = {
                             saveBitmap(context, mbitmap, fileName)
                             scope?.launch {

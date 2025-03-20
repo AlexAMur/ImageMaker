@@ -11,6 +11,9 @@
     <string name="ErrorFileRead">Не удалось прочитать файл. </string>
     <string name="FileError">Не удалось записать данные в файл. </string>
     <string name="OutOfMemory">Превышен объем доступной памяти. </string>
+
+    <string name="LoadMarket">Загружено магазинов:</string>
+
     <string name="EnableLocation">Включите геолокацию в настройках для определения магазина.</string>
     <string name="PermissionLocation">Для определения магазина приложению требуются права на доступ к геолокации.</string>
 </resources>
