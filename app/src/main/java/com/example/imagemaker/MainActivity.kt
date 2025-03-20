@@ -15,6 +15,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -49,13 +50,29 @@ class MainActivity : ComponentActivity() {
     var gpsLocationListener: LocationListener? = null
     var mailTo: MutableState<String>?= mutableStateOf("")
     private var app : MyApplication? =null
+    var requestPermissionLauncher: ActivityResultLauncher<String?>?= null
 
     @SuppressLint("SuspiciousIndentation", "MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
          app = (application as MyApplication)
         settings = app?.settings ?: Settings()
+         requestPermissionLauncher =
+            registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ){ isGranted: Boolean ->
+                if (isGranted) {
+                    saveBitmap(context, mbitmap, fileName)
+                    scope?.launch {
+                        snackBarHostState.showSnackbar("${context.resources.getString(R.string.saveMassage)} $fileName.")
+                    }
+                }
+                else {
+                    Toast.makeText(context,context.getString(R.string.PermissionStorage),
+                        Toast.LENGTH_LONG).show()
+                }
 
+            }
         val requestPermissionLauncher =
             registerForActivityResult(
                 ActivityResultContracts.RequestPermission()
@@ -137,25 +154,7 @@ class MainActivity : ComponentActivity() {
     }
 
         setContent {
-      /*      gpsLocationListener = object : LocationListener {
-                override fun onLocationChanged(location: Location) {
-                    val tmpCoordinate = Coordinate(
-                        longitude = location.longitude,
-                        latitude = location.latitude
-                    )
-                    Log.e("ImageMLocation", "Определение координат!!!")
-                    coordinate?.value = tmpCoordinate
-                    val market =(application as MyApplication).listMarket
-                 /*   var mailTo =
-                        selectMailMarket(
-                            market!!,
-                            coordinate?.value!!
-                        )//Pair(30.35687977917871,59.932240884442095))*/
-                }
-                override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-                override fun onProviderEnabled(provider: String) {}
-                override fun onProviderDisabled(provider: String) {}
-            }*/
+
             startLocation(applicationContext)
 //            if (gpsLocationListener != null) {
 //                app?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
@@ -173,48 +172,10 @@ class MainActivity : ComponentActivity() {
 
 
             ImageMakerTheme {
-//                if (getPermission()){
-//
-//                    if (app.locationManager?.isLocationEnabled == true){
-//                        gpsLocationListener = object : LocationListener {
-//                            override fun onLocationChanged(location: Location) {
-//                                val tmpCoordinate = Coordinate(
-//                                    longitude = location.longitude,
-//                                    latitude = location.latitude
-//                                )
-//                                Log.e("ImageMLocation", "Определение координат!!!")
-//                                coordinate?.value = tmpCoordinate
-//                                val market =(application as MyApplication).listMarket
-//                                mailTo = selectMailMarket(market!!, coordinate?.value!!)//Pair(30.35687977917871,59.932240884442095))
-//                            }
-//                            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-//                            override fun onProviderEnabled(provider: String) {}
-//                            override fun onProviderDisabled(provider: String) {}
-//                        }
-//                        if (gpsLocationListener != null) {
-//                            app.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-//                                5000, 10f,  gpsLocationListener!!)
-//                        }
-//                    }
-//                    else{
 //                        LaunchedEffect(scope){
 //                            launch {
 //                                snackBarHostState?.showSnackbar(applicationContext.resources.getString(R.string.EnableLocation))
 //                            }
-//                        }
-//                    }
-//                }
-//                else {
-//                    LaunchedEffect(scope) {
-//                        launch {
-//                            snackBarHostState?.showSnackbar(applicationContext.resources.getString(R.string.PermissionLocation))
-//                        }
-//                    }
-//                }
-
-
-
-
 
                     // A surface container using the 'background' color from the theme
                 Surface(

@@ -41,6 +41,7 @@ fun saveBitmap(context: Context, bitmap: Bitmap, fileName: String?): Uri? {
             put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
         else
             put(MediaStore.MediaColumns.DISPLAY_NAME, "temp_filename.jpg")
+        put(MediaStore.MediaColumns.MIME_TYPE, context.getString(R.string.MIME_jpeg))
     }
     outUri = context.contentResolver.insert(
         MediaStore.Images.Media.EXTERNAL_CONTENT_URI, content)

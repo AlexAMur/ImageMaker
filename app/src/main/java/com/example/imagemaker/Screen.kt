@@ -72,6 +72,7 @@ fun GetContentExample(
     var bitmapPodpis = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
     var mbitmap = bitmapPodpis.copy(Bitmap.Config.ARGB_8888, true)
 
+
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { it ->
             imageUriPodpis = it.data?.data
@@ -144,9 +145,10 @@ fun GetContentExample(
                             it
                         )
                     }
-                    if (listMarket.size > 0)
-                    scope?.launch{
-                        snackBarHostState.showSnackbar(context.getString(R.string.LoadMarket)+" ${listMarket.size}")
+                    if(listMarket.size > 0) {
+                        scope?.launch {
+                            snackBarHostState.showSnackbar(context.getString(R.string.LoadMarket) + " ${listMarket.size}")
+                        }
                     }
                     //streamOut.write(str.toByteArray(Charset.defaultCharset()),0,str.length)
                                         }
@@ -256,11 +258,24 @@ fun GetContentExample(
                         horizontalArrangement = Arrangement.Center,
                         ) {
                         Button(modifier = Modifier.padding(start = 10.dp, end = 20.dp),onClick = {
-                            saveBitmap(context, mbitmap, fileName)
-                            scope?.launch {
-                                snackBarHostState.showSnackbar("${context.resources.getString(R.string.saveMassage)} $fileName.")
+
+                            when{
+                                ContextCompat.checkSelfPermission(
+                                    context.applicationContext,Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                        == PackageManager.PERMISSION_GRANTED->{
+                                    saveBitmap(context, mbitmap, fileName)
+                                    scope?.launch {
+                                        snackBarHostState.showSnackbar("${context.resources.getString(R.string.saveMassage)} $fileName.")
+                                    }
+                                }else->{
+                                    requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                }
+
                             }
-                        }) {
+
+
+                        })
+                        {
                             Text("Сохранить")
                         }
                         Button(modifier = Modifier.padding(start = 20.dp, end = 10.dp), onClick = {

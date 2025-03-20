@@ -16,4 +16,5 @@
 
     <string name="EnableLocation">Включите геолокацию в настройках для определения магазина.</string>
     <string name="PermissionLocation">Для определения магазина приложению требуются права на доступ к геолокации.</string>
+    <string name="PermissionStorage">Для сохранения требуются права на доступ к хранилищу.</string>
 </resources>
