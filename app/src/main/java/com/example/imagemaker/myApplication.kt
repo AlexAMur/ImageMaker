@@ -28,17 +28,10 @@ class MyApplication: Application() {
         super.onCreate()
         var stringJson = readJsonFile(applicationContext, getString(R.string.fileName))
         runBlocking {
-            val task = CoroutineScope(Dispatchers.IO).async {
-
-        }
-        //получаем настройки
+                    //получаем настройки
            // CoroutineScope(Dispatchers.IO).launch {
                 settings = getSettings(applicationContext.dataStore)
-
-
-        //stringJson =task.await()?:""
         }
-
        listMarket = createArrayMarket( stringJson?:"")
        locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     }

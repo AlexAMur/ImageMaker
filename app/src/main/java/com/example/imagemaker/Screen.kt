@@ -32,6 +32,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +51,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.nio.charset.Charset
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -71,7 +73,6 @@ fun GetContentExample(
     var editImage by remember { mutableStateOf<Boolean>(value = false) }
     var bitmapPodpis = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
     var mbitmap = bitmapPodpis.copy(Bitmap.Config.ARGB_8888, true)
-
 
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { it ->
@@ -268,7 +269,8 @@ fun GetContentExample(
                                         snackBarHostState.showSnackbar("${context.resources.getString(R.string.saveMassage)} $fileName.")
                                     }
                                 }else->{
-                                    requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                //val result=(context as MainActivity).requestPermission?.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                //if (result as  ==)
                                 }
 
                             }

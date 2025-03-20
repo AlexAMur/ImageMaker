@@ -1,5 +1,6 @@
 package com.example.imagemaker
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -50,29 +51,36 @@ class MainActivity : ComponentActivity() {
     var gpsLocationListener: LocationListener? = null
     var mailTo: MutableState<String>?= mutableStateOf("")
     private var app : MyApplication? =null
-    var requestPermissionLauncher: ActivityResultLauncher<String?>?= null
+    //var requestPermissionLauncher: ActivityResultLauncher<String>?= null
 
     @SuppressLint("SuspiciousIndentation", "MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
          app = (application as MyApplication)
         settings = app?.settings ?: Settings()
-         requestPermissionLauncher =
-            registerForActivityResult(
+       val  requestPermissionSorage =registerForActivityResult(
                 ActivityResultContracts.RequestPermission()
             ){ isGranted: Boolean ->
-                if (isGranted) {
-                    saveBitmap(context, mbitmap, fileName)
-                    scope?.launch {
-                        snackBarHostState.showSnackbar("${context.resources.getString(R.string.saveMassage)} $fileName.")
-                    }
-                }
+
+               if (isGranted) {
+
+                                  }
                 else {
-                    Toast.makeText(context,context.getString(R.string.PermissionStorage),
+                    Toast.makeText(this,this.getString(R.string.PermissionStorage),
                         Toast.LENGTH_LONG).show()
                 }
 
             }
+        when{
+            ContextCompat.checkSelfPermission(
+                this.applicationContext, Manifest.permission.MANAGE_MEDIA)
+                    == PackageManager.PERMISSION_GRANTED->{
+
+                    }
+            else->{
+                requestPermissionSorage?.launch(Manifest.permission.MANAGE_MEDIA)
+            }
+        }
         val requestPermissionLauncher =
             registerForActivityResult(
                 ActivityResultContracts.RequestPermission()
