@@ -1,6 +1,5 @@
 package com.example.imagemaker
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -51,34 +50,30 @@ class MainActivity : ComponentActivity() {
     var gpsLocationListener: LocationListener? = null
     var mailTo: MutableState<String>?= mutableStateOf("")
     private var app : MyApplication? =null
-    //var requestPermissionLauncher: ActivityResultLauncher<String>?= null
+    //var requestPermissionLauncher: ActivityResultLauncher<String?>?= null
 
     @SuppressLint("SuspiciousIndentation", "MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
          app = (application as MyApplication)
         settings = app?.settings ?: Settings()
-       val  requestPermissionSorage =registerForActivityResult(
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2){
+        var  requestPermissionStorageLauncher =
+            registerForActivityResult(
                 ActivityResultContracts.RequestPermission()
             ){ isGranted: Boolean ->
-
-               if (isGranted) {
-
-                                  }
-                else {
-                    Toast.makeText(this,this.getString(R.string.PermissionStorage),
+                if (!isGranted) {
+                    Toast.makeText(this,applicationContext.getString(R.string.PermissionStorage),
                         Toast.LENGTH_LONG).show()
                 }
 
             }
         when{
-            ContextCompat.checkSelfPermission(
-                this.applicationContext, Manifest.permission.MANAGE_MEDIA)
-                    == PackageManager.PERMISSION_GRANTED->{
-
+            ContextCompat.checkSelfPermission(applicationContext,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED->{
+                     requestPermissionStorageLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     }
-            else->{
-                requestPermissionSorage?.launch(Manifest.permission.MANAGE_MEDIA)
             }
         }
         val requestPermissionLauncher =

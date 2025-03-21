@@ -1,15 +1,19 @@
 package com.example.imagemaker
 
+import android.Manifest
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
+import androidx.core.content.ContextCompat
 import java.io.FileNotFoundException
 import java.io.IOException
 
@@ -32,9 +36,12 @@ fun getImage(context: Context, uri: Uri):Bitmap {
     }
     return Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
 }
-//@SuppressLint("SuspiciousIndentation")
+
 @Throws (IOException::class)
 fun saveBitmap(context: Context, bitmap: Bitmap, fileName: String?): Uri? {
+
+
+
     var outUri: Uri? =null
     val content = ContentValues().apply {
         if (fileName != null)

@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -115,8 +116,6 @@ fun GetContentExample(
                 fileName = fileNameFromUri(uri)
             }
         }
-
-
     val launcher_l =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()){ uri: Uri? ->
             var streamInput: InputStream? = null
@@ -162,19 +161,12 @@ fun GetContentExample(
                     streamInput?.close()
                     streamOut?.close()
                 }
-
-
             }
-
         }
   //+++++++++++++++++++++++++++++++++++++++
-
-
-
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }){
         Column(modifier = Modifier.verticalScroll(rememberScrollState())
                         ) {
-
        /*     if (isGooglePlayServicesAvailable(context)==SERVICE_INVALID) {
                 LaunchedEffect(scope) {
                     snackbarHostState.showSnackbar("Google play service не поддерживаются!")
@@ -182,7 +174,6 @@ fun GetContentExample(
             }*/
 
           //  getLocation(context,scope, snackBarHostState,coordinate)
-
              //aaa listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
             // mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
             //Text("Координаты Д: ${coordinate.value.longitude} Ш: ${coordinate.value.latitude}")
@@ -209,8 +200,6 @@ fun GetContentExample(
 //                }) {
 //                    Icon(Icons.Filled.Share, contentDescription = "Поделиться")
 //                }
-
-
             }
             if (imageUri_main != null) {
                 val inputstrim = context.contentResolver.openInputStream(imageUri_main!!)
@@ -259,22 +248,30 @@ fun GetContentExample(
                         horizontalArrangement = Arrangement.Center,
                         ) {
                         Button(modifier = Modifier.padding(start = 10.dp, end = 20.dp),onClick = {
-
+                            if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2){
                             when{
                                 ContextCompat.checkSelfPermission(
                                     context.applicationContext,Manifest.permission.WRITE_EXTERNAL_STORAGE)
                                         == PackageManager.PERMISSION_GRANTED->{
-                                    saveBitmap(context, mbitmap, fileName)
+                                        saveBitmap(context, mbitmap, fileName)
                                     scope?.launch {
                                         snackBarHostState.showSnackbar("${context.resources.getString(R.string.saveMassage)} $fileName.")
                                     }
-                                }else->{
-                                //val result=(context as MainActivity).requestPermission?.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                                //if (result as  ==)
                                 }
 
+                                else->{
+                                    scope?.launch {
+                                        snackBarHostState.showSnackbar(context.resources.getString(R.string.PermissionStorage))
+                                    }
+                                }
                             }
-
+                            }
+                            else{
+                                saveBitmap(context, mbitmap, fileName)
+                                scope?.launch {
+                                    snackBarHostState.showSnackbar("${context.resources.getString(R.string.saveMassage)} $fileName.")
+                                }
+                            }
 
                         })
                         {
@@ -284,18 +281,14 @@ fun GetContentExample(
                             val uri = saveBitmap(context, mbitmap, fileName)
                             if (uri != null) {
                                 //протестить координаты
-                               // val listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
-                                //val mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
                                 sendBitmap(context, uri, mailTo)
                             }
-
                         }) {
                             Icon(Icons.Filled.Share, contentDescription = "Поделиться")
                         }
                     }
                 }
             }
-
         }
     }
 }
