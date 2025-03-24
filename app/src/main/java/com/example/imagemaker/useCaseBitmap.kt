@@ -39,9 +39,6 @@ fun getImage(context: Context, uri: Uri):Bitmap {
 
 @Throws (IOException::class)
 fun saveBitmap(context: Context, bitmap: Bitmap, fileName: String?): Uri? {
-
-
-
     var outUri: Uri? =null
     val content = ContentValues().apply {
         if (fileName != null)

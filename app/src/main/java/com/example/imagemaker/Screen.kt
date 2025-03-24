@@ -177,8 +177,14 @@ fun GetContentExample(
              //aaa listMarket = createArrayMarket( readJsonFile(context, "magazin.json"))
             // mailTo = selectMailMarket(listMarket,coordinate.value)//Pair(30.35687977917871,59.932240884442095))
             //Text("Координаты Д: ${coordinate.value.longitude} Ш: ${coordinate.value.latitude}")
-            Text("mailTo: $mailTo", modifier = Modifier.fillMaxWidth().padding(10.dp,5.dp,5.dp,10.dp))
-            Row(Modifier.horizontalScroll(rememberScrollState()).fillMaxWidth().padding(10.dp), horizontalArrangement = Arrangement.SpaceAround) {
+            Text("mailTo: $mailTo", modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp, 5.dp, 5.dp, 10.dp))
+            Row(
+                Modifier
+                    .horizontalScroll(rememberScrollState())
+                    .fillMaxWidth()
+                    .padding(10.dp), horizontalArrangement = Arrangement.SpaceAround) {
                 Button(onClick = {
 
                        launcher_l.launch(context.resources.getString(R.string.MIME_Json))
@@ -227,52 +233,59 @@ fun GetContentExample(
                             //requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
                         }
                     }
-                    val screenSize = getScreenSize(context)
-                    val newWidth = bitmapPodpis.width * screenSize.first / mbitmap.width
-                    val newHeight = bitmapPodpis.height * screenSize.second / mbitmap.height
+
+//                    val screenSize = getScreenSize(context)
+                    val newWidth = bitmapPodpis.width
+                    val newHeight = bitmapPodpis.height
                     val scalePod = Bitmap.createScaledBitmap(
                         bitmapPodpis, (newWidth * 0.6).toInt(),
                         (newHeight * 0.6).toInt(), true
                     )
-                    val offset1 = Offset(
-                        mbitmap.width.toFloat() / 4 * 3 + 80,
-                        mbitmap.height.toFloat() / 4 * 3 - 80
-                    )
+
+                    val offset1 = Offset(1020.0F,1180.0F)
                     canvas.drawImage(scalePod.asImageBitmap(), offset1, paint)
+
+
+
+
+
+
+//                    val screenSize = getScreenSize(context)
+//                    val newWidth = bitmapPodpis.width * screenSize.first / mbitmap.width
+//                    val newHeight = bitmapPodpis.height * screenSize.second / mbitmap.height
+//                    val scalePod = Bitmap.createScaledBitmap(
+//                        bitmapPodpis, (newWidth * 0.6).toInt(),
+//                        (newHeight * 0.6).toInt(), true
+//                    )
+//                    val offset1 = Offset(
+//                        mbitmap.width.toFloat() / 4 * 3 + 80,
+//                        mbitmap.height.toFloat() / 4 * 3 - 80
+//                    )
+//                    canvas.drawImage(scalePod.asImageBitmap(), offset1, paint)
                     canvas.save()
                     editImage = true
                 }
                 Image(painter = BitmapPainter(mbitmap.asImageBitmap()), contentDescription = "Image")
                 if (editImage) {
-                    Row(Modifier.horizontalScroll(rememberScrollState()).fillMaxWidth().padding(10.dp),
+                    Row(
+                        Modifier
+                            .horizontalScroll(rememberScrollState())
+                            .fillMaxWidth()
+                            .padding(10.dp),
                         horizontalArrangement = Arrangement.Center,
                         ) {
                         Button(modifier = Modifier.padding(start = 10.dp, end = 20.dp),onClick = {
-                            if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2){
-                            when{
-                                ContextCompat.checkSelfPermission(
-                                    context.applicationContext,Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                                        == PackageManager.PERMISSION_GRANTED->{
+                            if(checkPermissionStorage(context)){
                                         saveBitmap(context, mbitmap, fileName)
                                     scope?.launch {
                                         snackBarHostState.showSnackbar("${context.resources.getString(R.string.saveMassage)} $fileName.")
                                     }
                                 }
-
-                                else->{
+                                else{
                                     scope?.launch {
                                         snackBarHostState.showSnackbar(context.resources.getString(R.string.PermissionStorage))
                                     }
                                 }
-                            }
-                            }
-                            else{
-                                saveBitmap(context, mbitmap, fileName)
-                                scope?.launch {
-                                    snackBarHostState.showSnackbar("${context.resources.getString(R.string.saveMassage)} $fileName.")
-                                }
-                            }
-
                         })
                         {
                             Text("Сохранить")
@@ -291,4 +304,18 @@ fun GetContentExample(
             }
         }
     }
+}
+
+fun checkPermissionStorage(context: Context): Boolean {
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S_V2)
+        return true
+    if (
+        ContextCompat.checkSelfPermission(
+            context.applicationContext, Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+        == PackageManager.PERMISSION_GRANTED
+    )
+        return true
+    else
+        return false
 }

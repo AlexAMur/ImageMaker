@@ -1,6 +1,7 @@
 package com.example.imagemaker
 
 import android.annotation.SuppressLint
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -15,7 +16,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
             }
         when{
             ContextCompat.checkSelfPermission(applicationContext,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED->{
                      requestPermissionStorageLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     }
@@ -140,18 +140,11 @@ class MainActivity : ComponentActivity() {
             override fun onProviderEnabled(provider: String) {}
             override fun onProviderDisabled(provider: String) {}
         }
-
             startLocation(applicationContext)
-//        if (gpsLocationListener != null) {
-//            app?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-//                3000, 10f,  gpsLocationListener!!)
-//        }
-
-
         }
     }
         else->{
-             requestPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+             requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
 
     }
