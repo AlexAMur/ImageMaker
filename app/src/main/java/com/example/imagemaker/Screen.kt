@@ -238,11 +238,11 @@ fun GetContentExample(
                     val newWidth = bitmapPodpis.width
                     val newHeight = bitmapPodpis.height
                     val scalePod = Bitmap.createScaledBitmap(
-                        bitmapPodpis, (newWidth * 0.6).toInt(),
-                        (newHeight * 0.6).toInt(), true
+                        bitmapPodpis, (newWidth).toInt(),
+                        (newHeight).toInt(), true
                     )
 
-                    val offset1 = Offset(1020.0F,1180.0F)
+                    val offset1 = Offset(20F,180F)
                     canvas.drawImage(scalePod.asImageBitmap(), offset1, paint)
 
 
