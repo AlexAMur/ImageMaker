@@ -18,6 +18,8 @@ import java.io.FileNotFoundException
 import java.io.IOException
 
 fun getScreenSize(context: Context):Pair<Int, Int>{
+    val displayMetrics = context.resources.displayMetrics
+    //displayMetrics.
     val width =context.resources.displayMetrics.widthPixels
     val height =context.resources.displayMetrics.heightPixels
     return Pair(width, height)

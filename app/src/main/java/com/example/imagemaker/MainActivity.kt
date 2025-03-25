@@ -49,6 +49,8 @@ class MainActivity : ComponentActivity() {
     var coordinate: MutableState<Coordinate>? = null
     var gpsLocationListener: LocationListener? = null
     var mailTo: MutableState<String>?= mutableStateOf("")
+    var imageUriPodpis:MutableState<Uri?> = mutableStateOf<Uri?>(null)
+    var mainUri = mutableStateOf<Uri?>(null)
     private var app : MyApplication? =null
     //var requestPermissionLauncher: ActivityResultLauncher<String?>?= null
 
@@ -160,10 +162,9 @@ class MainActivity : ComponentActivity() {
             snackBarHostState = remember { SnackbarHostState() }
             coordinate = remember { mutableStateOf(Coordinate()) }
           //  var mailTo  by remember { mutableStateOf("")  }
-            var imageUriPodpis by remember { mutableStateOf<Uri?>(null) }
-            var mainUri: Uri? = null
-            if (settings.uri != null) {
-                imageUriPodpis = settings.uri
+
+            if (settings.uri != null && imageUriPodpis.value == null) {
+                imageUriPodpis.value = settings.uri
             }
 
 
@@ -193,14 +194,14 @@ class MainActivity : ComponentActivity() {
                                         Intent.EXTRA_STREAM,
                                         Uri::class.java
                                     )
-
+                                if (tmpUri != mainUri.value && tmpUri != null)
                                 tmpUri?.let { it ->
-                                    mainUri = it
+                                    mainUri.value = it
 
                                     GetContentExample(
                                         this,
                                         mainUri,
-                                        imageUriPodpis,
+                                        imageUriPodpis.value,
                                         settings,
                                         scope,
                                         snackBarHostState!!,
@@ -218,7 +219,7 @@ class MainActivity : ComponentActivity() {
                             GetContentExample(
                                 this,
                                 mainUri,
-                                imageUriPodpis,
+                                imageUriPodpis.value,
                                 settings,
                                 scope,
                                 snackBarHostState!!,

@@ -9,6 +9,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -34,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,7 +59,7 @@ import java.nio.charset.Charset
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun GetContentExample(
-    context: Context, mainUri: Uri?,
+    context: Context, mainUri: MutableState<Uri?>,
     UriPodpis: Uri?, settings: Settings, scope:CoroutineScope?,
     snackBarHostState: SnackbarHostState,
     mailTo: String
@@ -65,15 +67,16 @@ fun GetContentExample(
 
     //val coordinate = remember { mutableStateOf(Coordinate()) }
     var imageUriPodpis by remember { mutableStateOf<Uri?>(UriPodpis) }
-    var fileName:String? = null
-    var imageUri_main by remember { mutableStateOf<Uri?>(null) }
-    if (mainUri != null){
-        imageUri_main = mainUri  //тут по кругу
-        fileName=fileNameFromUri(imageUri_main)
-      }
+    var fileName by remember { mutableStateOf("") }
+    var imageUri_main by remember { mutableStateOf<Uri?>(mainUri.value) }
+   /* if (mainUri.value != null && imageUri_main != mainUri .value  ){
+        imageUri_main = mainUri .value //тут по кругу
+        fileName= fileNameFromUri(imageUri_main)?:""
+      }*/
     var editImage by remember { mutableStateOf<Boolean>(value = false) }
-    var bitmapPodpis = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
-    var mbitmap = bitmapPodpis.copy(Bitmap.Config.ARGB_8888, true)
+    var scalePod by remember { mutableStateOf(Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)) }
+    var bitmapPodpis by remember { mutableStateOf(Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888))}
+    var mbitmap by remember { mutableStateOf( bitmapPodpis.copy(Bitmap.Config.ARGB_8888, true))}
 
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { it ->
@@ -113,7 +116,7 @@ fun GetContentExample(
             if (uri != null) {
                 imageUri_main = uri
                 editImage = false
-                fileName = fileNameFromUri(uri)
+                fileName = fileNameFromUri(uri)?:""
             }
         }
     val launcher_l =
@@ -192,7 +195,9 @@ fun GetContentExample(
                    }) {
                     Text(text = "Загузить магазины")
                 }
-                Button(onClick = { launcher_main.launch(context.resources.getString(R.string.MIME_jpeg)) }) {
+                Button(onClick = {
+                   launcher_main.launch(context.resources.getString(R.string.MIME_jpeg))
+                }) {
                     Text(text = "Выбрать акт")
                 }
 
@@ -234,15 +239,15 @@ fun GetContentExample(
                         }
                     }
 
-//                    val screenSize = getScreenSize(context)
+                    val screenSize = getScreenSize(context)
                     val newWidth = bitmapPodpis.width
                     val newHeight = bitmapPodpis.height
-                    val scalePod = Bitmap.createScaledBitmap(
-                        bitmapPodpis, (newWidth).toInt(),
-                        (newHeight).toInt(), true
+                    scalePod = Bitmap.createScaledBitmap(
+                        bitmapPodpis, (newWidth*0.5).toInt(),
+                        (newHeight*0.5).toInt(), true
                     )
 
-                    val offset1 = Offset(20F,180F)
+                    val offset1 = Offset(1028F,1180F)
                     canvas.drawImage(scalePod.asImageBitmap(), offset1, paint)
 
 
