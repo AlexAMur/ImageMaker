@@ -39,6 +39,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -46,6 +47,7 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
@@ -66,14 +68,14 @@ fun GetContentExample(
 ) {
 
     //val coordinate = remember { mutableStateOf(Coordinate()) }
-    var imageUriPodpis by remember { mutableStateOf<Uri?>(UriPodpis) }
+    var imageUriPodpis by remember  { mutableStateOf<Uri?>(UriPodpis) }
     var fileName by remember { mutableStateOf("") }
-    var imageUri_main by remember { mutableStateOf<Uri?>(mainUri.value) }
+    var imageUri_main by rememberSaveable { mutableStateOf<Uri?>(mainUri.value) }
    /* if (mainUri.value != null && imageUri_main != mainUri .value  ){
         imageUri_main = mainUri .value //тут по кругу
         fileName= fileNameFromUri(imageUri_main)?:""
       }*/
-    var editImage by remember { mutableStateOf<Boolean>(value = false) }
+    var editImage by rememberSaveable  { mutableStateOf<Boolean>(value = false) }
     var scalePod by remember { mutableStateOf(Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)) }
     var bitmapPodpis by remember { mutableStateOf(Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888))}
     var mbitmap by remember { mutableStateOf( bitmapPodpis.copy(Bitmap.Config.ARGB_8888, true))}
@@ -239,7 +241,7 @@ fun GetContentExample(
                         }
                     }
 
-                    val screenSize = getScreenSize(context)
+                    val screenSize = context.resources.displayMetrics.density
                     val newWidth = bitmapPodpis.width
                     val newHeight = bitmapPodpis.height
                     scalePod = Bitmap.createScaledBitmap(
@@ -247,13 +249,9 @@ fun GetContentExample(
                         (newHeight*0.5).toInt(), true
                     )
 
-                    val offset1 = Offset(1028F,1180F)
+
+                    val offset1 = Offset(1030F,1230F)
                     canvas.drawImage(scalePod.asImageBitmap(), offset1, paint)
-
-
-
-
-
 
 //                    val screenSize = getScreenSize(context)
 //                    val newWidth = bitmapPodpis.width * screenSize.first / mbitmap.width
@@ -270,7 +268,9 @@ fun GetContentExample(
                     canvas.save()
                     editImage = true
                 }
-                Image(painter = BitmapPainter(mbitmap.asImageBitmap()), contentDescription = "Image")
+                Image(painter = BitmapPainter(mbitmap.asImageBitmap()),
+                    contentScale = ContentScale.Fit,
+                    contentDescription = "Image")
                 if (editImage) {
                     Row(
                         Modifier

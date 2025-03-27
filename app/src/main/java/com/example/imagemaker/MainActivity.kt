@@ -169,10 +169,6 @@ class MainActivity : ComponentActivity() {
 
 
             ImageMakerTheme {
-//                        LaunchedEffect(scope){
-//                            launch {
-//                                snackBarHostState?.showSnackbar(applicationContext.resources.getString(R.string.EnableLocation))
-//                            }
 
                     // A surface container using the 'background' color from the theme
                 Surface(
@@ -194,7 +190,7 @@ class MainActivity : ComponentActivity() {
                                         Intent.EXTRA_STREAM,
                                         Uri::class.java
                                     )
-                                if (tmpUri != mainUri.value && tmpUri != null)
+                                //if (tmpUri != mainUri.value && tmpUri != null)
                                 tmpUri?.let { it ->
                                     mainUri.value = it
 
@@ -265,7 +261,7 @@ class MainActivity : ComponentActivity() {
     fun startLocation(context: Context){
         if (gpsLocationListener != null) {
             (context.applicationContext as MyApplication)?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                3000, 10f,  gpsLocationListener!!)
+                1000, 10f,  gpsLocationListener!!)
         }
     }
 }
