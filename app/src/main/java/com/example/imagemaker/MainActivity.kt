@@ -201,7 +201,7 @@ class MainActivity : ComponentActivity() {
                                         settings,
                                         scope,
                                         snackBarHostState!!,
-                                        mailTo?.value?:"test1"
+                                        mailTo?.value?:"@krasnoe-beloe.ru"
                                     )
                                 }
                             } else {
@@ -219,7 +219,7 @@ class MainActivity : ComponentActivity() {
                                 settings,
                                 scope,
                                 snackBarHostState!!,
-                                mailTo?.value?:"test2"
+                                mailTo?.value?:"@krasnoe-beloe.ru"
                             )
                         }
 
@@ -231,19 +231,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-            CoroutineScope(Dispatchers.IO).launch {
-                saveSettings(applicationContext, settings)
-            }
-
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-    }
+//    override fun onDestroy() {
+//        super.onDestroy()
+//
+//            CoroutineScope(Dispatchers.IO).launch {
+//                saveSettings(applicationContext, settings)
+//            }
+//
+//    }
 
     override fun onPause() {
         super.onPause()
@@ -260,7 +255,7 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("MissingPermission")
     fun startLocation(context: Context){
         if (gpsLocationListener != null) {
-            (context.applicationContext as MyApplication)?.locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+            (context.applicationContext as MyApplication).locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 1000, 10f,  gpsLocationListener!!)
         }
     }

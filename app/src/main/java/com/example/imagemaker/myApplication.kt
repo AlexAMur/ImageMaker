@@ -15,43 +15,60 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.lang.NullPointerException
 
-val Context.dataStore  by preferencesDataStore(name = "settings")
-class MyApplication: Application() {
-    var settings: Settings?  = Settings()
-    var  locationManager: LocationManager? =null
+val Context.dataStore by preferencesDataStore(name = "settings")
+
+class MyApplication : Application() {
+    var settings: Settings? = Settings()
+    var locationManager: LocationManager? = null
     var listMarket: Array<Market>? = null
 
     override fun onCreate() {
         super.onCreate()
         var stringJson = readJsonFile(applicationContext, getString(R.string.fileName))
         runBlocking {
-                    //получаем настройки
-           // CoroutineScope(Dispatchers.IO).launch {
-                settings = getSettings(applicationContext.dataStore)
+            //получаем настройки
+            // CoroutineScope(Dispatchers.IO).launch {
+            settings = getSettings(applicationContext.dataStore)
         }
-       listMarket = createArrayMarket( stringJson?:"")
-       locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    }
-private suspend fun  getSettings(context: DataStore<Preferences>):Settings{
-    val settings = Settings()
-    try {
-        context.data.map {
-            if (it[stringPreferencesKey(Settings::uri.name)] !="")
-                settings.uri = Uri.parse(it[stringPreferencesKey(Settings::uri.name)])
-            else
-                settings.uri=null
-            settings.x = (it[stringPreferencesKey(Settings::x.name)])?.toInt() ?: 0
-            settings.y = (it[stringPreferencesKey(Settings::y.name)])?.toInt() ?: 0
-        }.first()
-    } catch (e: NullPointerException){
-        Log.e("ImageMaker",e.message.toString())
-        //Toast.makeText(context, "Not settings", Toast.LENGTH_LONG).show()
-    }finally {
-        return settings
+        listMarket = createArrayMarket(stringJson ?: "")
+        locationManager =
+            applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     }
 
-}
+    private suspend fun getSettings(context: DataStore<Preferences>): Settings {
+        val settings = Settings()
+        try {
+            context.data.map {
+                if (it[stringPreferencesKey(Settings::uri.name)] != "")
+                    settings.uri = Uri.parse(it[stringPreferencesKey(Settings::uri.name)])
+                else
+                    settings.uri = null
+                settings.x = (it[stringPreferencesKey(Settings::x.name)])?.toInt() ?: 0
+                settings.y = (it[stringPreferencesKey(Settings::y.name)])?.toInt() ?: 0
+                val permission = (it[stringPreferencesKey(Settings::permissionLocationDenied.name)])?.toInt()?: 0
+                if(permission == 1)
+                    settings.permissionLocationDenied = true
+                else
+                    settings.permissionLocationDenied =false
+
+            }.first()
+        } catch (e: NullPointerException) {
+            Log.e("ImageMaker", e.message.toString())
+            //Toast.makeText(context, "Not settings", Toast.LENGTH_LONG).show()
+        } finally {
+            return settings
+        }
+
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        CoroutineScope(Dispatchers.IO).launch {
+            settings?.let { saveSettings(applicationContext, it) }
+        }
+    }
 }
