@@ -195,7 +195,7 @@ fun GetContentExample(
                        launcher_l.launch(context.resources.getString(R.string.MIME_Json))
 
                    }) {
-                    Text(text = "Загузить магазины")
+                    Text(text = "Загрузить магазины")
                 }
                 Button(onClick = {
                    launcher_main.launch(context.resources.getString(R.string.MIME_jpeg))
